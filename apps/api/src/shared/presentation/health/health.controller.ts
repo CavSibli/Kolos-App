@@ -1,9 +1,11 @@
 import { Controller, Get } from '@nestjs/common';
+import { SkipThrottle } from '@nestjs/throttler';
 import { DataSource } from 'typeorm';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 
 @Controller('health')
+@SkipThrottle()
 export class HealthController {
   constructor(
     private readonly dataSource: DataSource,

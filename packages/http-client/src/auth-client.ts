@@ -42,7 +42,8 @@ export class AuthClient {
   }
 
   refresh(): Promise<AuthResponse> {
-    return this.api.post<AuthResponse>('/auth/refresh', undefined);
+    // Avoid retry loop: a 401 here must not re-trigger refresh via onUnauthorized.
+    return this.api.post<AuthResponse>('/auth/refresh', undefined, false);
   }
 
   logout(): Promise<void> {

@@ -74,17 +74,33 @@ export class ApiClient {
     return this.request<T>(path, { method: 'GET' });
   }
 
-  post<T>(path: string, body?: unknown): Promise<T> {
-    return this.request<T>(path, {
-      method: 'POST',
-      body: body !== undefined ? JSON.stringify(body) : undefined,
-    });
+  post<T>(
+    path: string,
+    body?: unknown,
+    retryOnUnauthorized = true,
+  ): Promise<T> {
+    return this.request<T>(
+      path,
+      {
+        method: 'POST',
+        body: body !== undefined ? JSON.stringify(body) : undefined,
+      },
+      retryOnUnauthorized,
+    );
   }
 
-  patch<T>(path: string, body?: unknown): Promise<T> {
-    return this.request<T>(path, {
-      method: 'PATCH',
-      body: body !== undefined ? JSON.stringify(body) : undefined,
-    });
+  patch<T>(
+    path: string,
+    body?: unknown,
+    retryOnUnauthorized = true,
+  ): Promise<T> {
+    return this.request<T>(
+      path,
+      {
+        method: 'PATCH',
+        body: body !== undefined ? JSON.stringify(body) : undefined,
+      },
+      retryOnUnauthorized,
+    );
   }
 }
