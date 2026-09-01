@@ -2,10 +2,9 @@
   "extends": "../../packages/tsconfig/nest.json",
   "compilerOptions": {
     "outDir": "./dist",
-    "baseUrl": "./",
     "paths": {
-      "@shared/*": ["src/shared/*"],
-      "@modules/*": ["src/modules/*"]
+      "@shared/*": ["./src/shared/*"],
+      "@modules/*": ["./src/modules/*"]
     }
   },
   "include": ["src/**/*.ts", "test/**/*.ts"],

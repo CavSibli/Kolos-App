@@ -8,7 +8,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { Throttle } from '@nestjs/throttler';
+import { Throttle, SkipThrottle } from '@nestjs/throttler';
 import { Request, Response } from 'express';
 import { RegisterUserUseCase } from '../../../application/use-cases/register-user.use-case';
 import { LoginUseCase } from '../../../application/use-cases/login.use-case';
@@ -57,7 +57,7 @@ export class AuthController {
   @Post('refresh')
   @HttpCode(200)
   @UseGuards(RefreshAuthGuard)
-  @Throttle({ default: { limit: 10, ttl: 60000 } })
+  @SkipThrottle()
   async refresh(
     @CurrentRefreshUser() user: RefreshAuthUser,
     @Res({ passthrough: true }) res: Response,

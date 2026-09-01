@@ -9,7 +9,12 @@ import {
   type ReactNode,
 } from 'react';
 import { AuthClient } from '@kolos/http-client';
-import type { AuthUser, LoginRequest, RegisterRequest } from '@kolos/shared-types';
+import type {
+  AuthResponse,
+  AuthUser,
+  LoginRequest,
+  RegisterRequest,
+} from '@kolos/shared-types';
 
 interface AuthContextValue {
   user: AuthUser | null;
@@ -23,20 +28,37 @@ interface AuthContextValue {
 const AuthContext = createContext<AuthContextValue | null>(null);
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? '/v1';
+const SESSION_HINT_KEY = 'kolos_session';
 
-async function waitForApiReady(maxAttempts = 30, delayMs = 1000): Promise<boolean> {
-  for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
-    try {
-      const response = await fetch(`${API_BASE_URL}/health/live`);
-      if (response.ok) {
-        return true;
-      }
-    } catch {
-      // API not ready yet
-    }
-    await new Promise((resolve) => setTimeout(resolve, delayMs));
+function markSessionActive(): void {
+  sessionStorage.setItem(SESSION_HINT_KEY, '1');
+}
+
+function clearSessionHint(): void {
+  sessionStorage.removeItem(SESSION_HINT_KEY);
+}
+
+function hasSessionHint(): boolean {
+  return sessionStorage.getItem(SESSION_HINT_KEY) === '1';
+}
+
+let bootstrapSessionPromise: Promise<AuthResponse | null> | null = null;
+
+function resetBootstrapSession(): void {
+  bootstrapSessionPromise = null;
+}
+
+function restoreSession(authClient: AuthClient): Promise<AuthResponse | null> {
+  if (!hasSessionHint()) {
+    return Promise.resolve(null);
   }
-  return false;
+
+  bootstrapSessionPromise ??= authClient
+    .refresh()
+    .then((result) => result)
+    .catch(() => null);
+
+  return bootstrapSessionPromise;
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -65,27 +87,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     let cancelled = false;
 
     async function bootstrap() {
-      try {
-        const apiReady = await waitForApiReady();
-        if (!apiReady || cancelled) {
-          return;
-        }
-
-        const result = await authClient.refresh();
-        accessTokenRef.current = result.accessToken;
-        if (!cancelled) {
-          setUser(result.user);
-        }
-      } catch {
-        accessTokenRef.current = null;
-        if (!cancelled) {
-          setUser(null);
-        }
-      } finally {
+      if (!hasSessionHint()) {
         if (!cancelled) {
           setIsLoading(false);
         }
+        return;
       }
+
+      const result = await restoreSession(authClient);
+
+      if (cancelled) {
+        return;
+      }
+
+      if (result) {
+        accessTokenRef.current = result.accessToken;
+        markSessionActive();
+        setUser(result.user);
+      } else {
+        accessTokenRef.current = null;
+        clearSessionHint();
+        resetBootstrapSession();
+        setUser(null);
+      }
+
+      setIsLoading(false);
     }
 
     void bootstrap();
@@ -99,6 +125,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     async (data: LoginRequest) => {
       const result = await authClient.login(data);
       accessTokenRef.current = result.accessToken;
+      markSessionActive();
       setUser(result.user);
     },
     [authClient],
@@ -108,6 +135,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     async (data: RegisterRequest) => {
       const result = await authClient.register(data);
       accessTokenRef.current = result.accessToken;
+      markSessionActive();
       setUser(result.user);
     },
     [authClient],
@@ -118,6 +146,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       await authClient.logout();
     } finally {
       accessTokenRef.current = null;
+      clearSessionHint();
+      resetBootstrapSession();
       setUser(null);
     }
   }, [authClient]);
