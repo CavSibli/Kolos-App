@@ -1,0 +1,74 @@
+import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { UserRepository } from '../../../domain/repositories/user.repository';
+import { User } from '../../../domain/entities/user.entity';
+import { Email } from '../../../domain/value-objects/email.vo';
+import { UserId } from '../../../domain/value-objects/user-id.vo';
+import { UserOrmEntity } from '../entities/user.orm-entity';
+import { RoleOrmEntity } from '../entities/role.orm-entity';
+import { UserOrmMapper } from '../mappers/user.orm-mapper';
+
+@Injectable()
+export class TypeOrmUserRepository implements UserRepository {
+  constructor(
+    @InjectRepository(UserOrmEntity)
+    private readonly userRepo: Repository<UserOrmEntity>,
+    @InjectRepository(RoleOrmEntity)
+    private readonly roleRepo: Repository<RoleOrmEntity>,
+  ) {}
+
+  async findById(id: UserId): Promise<User | null> {
+    const entity = await this.userRepo.findOne({
+      where: { id: id.toString() },
+      relations: ['roles'],
+    });
+    return entity ? UserOrmMapper.toDomain(entity) : null;
+  }
+
+  async findByEmail(email: Email): Promise<User | null> {
+    const entity = await this.userRepo.findOne({
+      where: { email: email.toString() },
+      relations: ['roles'],
+    });
+    return entity ? UserOrmMapper.toDomain(entity) : null;
+  }
+
+  async existsByEmail(email: Email): Promise<boolean> {
+    const count = await this.userRepo.count({
+      where: { email: email.toString() },
+    });
+    return count > 0;
+  }
+
+  async save(user: User): Promise<User> {
+    const partial = UserOrmMapper.toOrm(user);
+    let entity = partial.id
+      ? await this.userRepo.findOne({
+          where: { id: partial.id },
+          relations: ['roles'],
+        })
+      : null;
+
+    if (!entity) {
+      entity = this.userRepo.create(partial);
+    } else {
+      Object.assign(entity, partial);
+    }
+
+    if (user.roles.length > 0) {
+      const roleNames = user.roles.map((role) => role.name);
+      entity.roles = await this.roleRepo.findBy(
+        roleNames.map((name) => ({ name })),
+      );
+    }
+
+    const saved = await this.userRepo.save(entity);
+    const reloaded = await this.userRepo.findOneOrFail({
+      where: { id: saved.id },
+      relations: ['roles'],
+    });
+
+    return UserOrmMapper.toDomain(reloaded);
+  }
+}

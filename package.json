@@ -1,0 +1,17 @@
+{
+  "name": "kolos",
+  "private": true,
+  "version": "0.0.1",
+  "scripts": {
+    "dev": "pnpm run --parallel --filter @kolos/api --filter @kolos/user-web dev",
+    "build": "pnpm run --filter @kolos/shared-types build && pnpm run --filter @kolos/http-client build && pnpm run --filter @kolos/api build && pnpm run --filter @kolos/user-web build",
+    "lint": "pnpm run -r lint",
+    "test": "pnpm run --filter @kolos/api test",
+    "test:e2e": "pnpm run --filter @kolos/api test:e2e",
+    "docker:up": "docker compose up -d",
+    "docker:down": "docker compose down"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

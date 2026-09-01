@@ -1,0 +1,6 @@
+{
+  "name": "@kolos/eslint-config",
+  "version": "0.0.1",
+  "private": true,
+  "files": ["base.cjs", "nest.cjs", "react.cjs"]
+}
