@@ -6,8 +6,12 @@ import configuration from './shared/config/configuration';
 import { envValidationSchema } from './shared/config/env.validation';
 import { PostgresModule } from './shared/infrastructure/postgres/postgres.module';
 import { MongoModule } from './shared/infrastructure/mongo/mongo.module';
+import { ReferenceDataModule } from './shared/reference-data/reference-data.module';
 import { HealthModule } from './shared/presentation/health/health.module';
 import { IdentityModule } from './modules/identity/identity.module';
+import { AidantProfileModule } from './modules/aidant-profile/aidant-profile.module';
+import { RequestsModule } from './modules/requests/requests.module';
+import { ApplicationsModule } from './modules/applications/applications.module';
 import { AllExceptionsFilter } from './shared/presentation/common/filters/all-exceptions.filter';
 
 @Module({
@@ -32,8 +36,12 @@ import { AllExceptionsFilter } from './shared/presentation/common/filters/all-ex
     }),
     PostgresModule,
     MongoModule,
+    ReferenceDataModule,
     HealthModule,
     IdentityModule,
+    AidantProfileModule,
+    RequestsModule,
+    ApplicationsModule,
   ],
   providers: [
     {

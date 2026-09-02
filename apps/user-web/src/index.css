@@ -44,6 +44,7 @@ label {
 
 input,
 select,
+textarea,
 button {
   font: inherit;
   padding: 0.65rem 0.75rem;
@@ -78,4 +79,19 @@ button:disabled {
   padding: 1rem;
   background: #eff6ff;
   border-radius: 8px;
+  margin-bottom: 1rem;
+}
+
+.card-list {
+  display: grid;
+  gap: 1rem;
+}
+
+.success {
+  color: #15803d;
+  font-size: 0.9rem;
+}
+
+ul {
+  padding-left: 1.25rem;
 }

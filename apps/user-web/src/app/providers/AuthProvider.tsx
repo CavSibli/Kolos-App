@@ -23,9 +23,15 @@ interface AuthContextValue {
   register: (data: RegisterRequest) => Promise<void>;
   logout: () => Promise<void>;
   refreshProfile: () => Promise<void>;
+  getAccessToken: () => string | null;
+  refreshSession: () => Promise<boolean>;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
+const AuthInternalsContext = createContext<{
+  getAccessToken: () => string | null;
+  refreshSession: () => Promise<boolean>;
+} | null>(null);
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? '/v1';
 const SESSION_HINT_KEY = 'kolos_session';
@@ -81,6 +87,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const refreshProfile = useCallback(async () => {
     const profile = await authClient.me();
     setUser(profile);
+  }, [authClient]);
+
+  const getAccessToken = useCallback(() => accessTokenRef.current, []);
+
+  const refreshSession = useCallback(async () => {
+    try {
+      const result = await authClient.refresh();
+      accessTokenRef.current = result.accessToken;
+      markSessionActive();
+      setUser(result.user);
+      return true;
+    } catch {
+      accessTokenRef.current = null;
+      clearSessionHint();
+      resetBootstrapSession();
+      setUser(null);
+      return false;
+    }
   }, [authClient]);
 
   useEffect(() => {
@@ -160,11 +184,39 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       register,
       logout,
       refreshProfile,
+      getAccessToken,
+      refreshSession,
     }),
-    [user, isLoading, login, register, logout, refreshProfile],
+    [
+      user,
+      isLoading,
+      login,
+      register,
+      logout,
+      refreshProfile,
+      getAccessToken,
+      refreshSession,
+    ],
   );
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  const internals = useMemo(
+    () => ({ getAccessToken, refreshSession }),
+    [getAccessToken, refreshSession],
+  );
+
+  return (
+    <AuthInternalsContext.Provider value={internals}>
+      <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
+    </AuthInternalsContext.Provider>
+  );
+}
+
+export function useAuthInternals() {
+  const context = useContext(AuthInternalsContext);
+  if (!context) {
+    throw new Error('useAuthInternals must be used within AuthProvider');
+  }
+  return context;
 }
 
 export function useAuth() {

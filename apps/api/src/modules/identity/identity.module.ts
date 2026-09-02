@@ -5,6 +5,7 @@ import { RoleOrmEntity } from './infrastructure/typeorm/entities/role.orm-entity
 import { RefreshTokenOrmEntity } from './infrastructure/typeorm/entities/refresh-token.orm-entity';
 import { TypeOrmUserRepository } from './infrastructure/typeorm/repositories/typeorm-user.repository';
 import { TypeOrmRefreshTokenRepository } from './infrastructure/typeorm/repositories/typeorm-refresh-token.repository';
+import { TypeOrmRoleRepository } from './infrastructure/typeorm/repositories/typeorm-role.repository';
 import { BcryptPasswordHasher } from './infrastructure/crypto/bcrypt-password-hasher.adapter';
 import { JwtTokenIssuer } from './infrastructure/crypto/jwt-token-issuer.adapter';
 import { SystemClock } from './infrastructure/clock/system-clock.adapter';
@@ -21,6 +22,7 @@ import { AuthSharedModule } from '@shared/auth/auth-shared.module';
 import {
   USER_REPOSITORY,
   REFRESH_TOKEN_REPOSITORY,
+  ROLE_REPOSITORY,
   PASSWORD_HASHER,
   TOKEN_ISSUER,
   CLOCK,
@@ -46,6 +48,10 @@ import {
       useClass: TypeOrmRefreshTokenRepository,
     },
     {
+      provide: ROLE_REPOSITORY,
+      useClass: TypeOrmRoleRepository,
+    },
+    {
       provide: PASSWORD_HASHER,
       useClass: BcryptPasswordHasher,
     },
@@ -64,6 +70,10 @@ import {
     {
       provide: TypeOrmRefreshTokenRepository,
       useExisting: REFRESH_TOKEN_REPOSITORY,
+    },
+    {
+      provide: TypeOrmRoleRepository,
+      useExisting: ROLE_REPOSITORY,
     },
     {
       provide: BcryptPasswordHasher,
@@ -85,5 +95,6 @@ import {
     GetCurrentUserUseCase,
     UpdateProfileUseCase,
   ],
+  exports: [USER_REPOSITORY, CLOCK],
 })
 export class IdentityModule {}

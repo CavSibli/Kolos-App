@@ -40,8 +40,10 @@ describe('RegisterUserUseCase', () => {
     }),
   };
 
-  const roleRepo = {
-    findOne: jest.fn().mockResolvedValue({ id: 1, name: 'demandeur' }),
+  const roleRepository = {
+    findByName: jest.fn().mockResolvedValue(
+      new Role({ id: 1, name: 'demandeur' }),
+    ),
   };
 
   const useCase = new RegisterUserUseCase(
@@ -49,7 +51,7 @@ describe('RegisterUserUseCase', () => {
     passwordHasher as never,
     clock as never,
     sessionService as never,
-    roleRepo as never,
+    roleRepository as never,
   );
 
   beforeEach(() => {
