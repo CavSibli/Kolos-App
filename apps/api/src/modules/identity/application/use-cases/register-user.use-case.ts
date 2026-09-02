@@ -4,16 +4,16 @@ import {
   BadRequestException,
   Inject,
 } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 import { randomUUID } from 'crypto';
 import { RegisterUserCommand, AuthResult } from '../dto/auth.dto';
 import { UserRepository } from '../../domain/repositories/user.repository';
+import { RoleRepository } from '../../domain/repositories/role.repository';
 import { PasswordHasherPort } from '../ports/password-hasher.port';
 import { ClockPort } from '../ports/clock.port';
 import {
   CLOCK,
   PASSWORD_HASHER,
+  ROLE_REPOSITORY,
   USER_REPOSITORY,
 } from '../../identity.tokens';
 import { Email } from '../../domain/value-objects/email.vo';
@@ -21,7 +21,6 @@ import { UserId } from '../../domain/value-objects/user-id.vo';
 import { PasswordHash } from '../../domain/value-objects/password-hash.vo';
 import { User } from '../../domain/entities/user.entity';
 import { Role } from '../../domain/entities/role.entity';
-import { RoleOrmEntity } from '../../infrastructure/typeorm/entities/role.orm-entity';
 import { SessionService } from '../services/session.service';
 
 @Injectable()
@@ -34,8 +33,8 @@ export class RegisterUserUseCase {
     @Inject(CLOCK)
     private readonly clock: ClockPort,
     private readonly sessionService: SessionService,
-    @InjectRepository(RoleOrmEntity)
-    private readonly roleRepo: Repository<RoleOrmEntity>,
+    @Inject(ROLE_REPOSITORY)
+    private readonly roleRepository: RoleRepository,
   ) {}
 
   async execute(command: RegisterUserCommand): Promise<AuthResult> {
@@ -46,7 +45,7 @@ export class RegisterUserUseCase {
     }
 
     const roleName = command.role ?? 'demandeur';
-    const roleEntity = await this.roleRepo.findOne({ where: { name: roleName } });
+    const roleEntity = await this.roleRepository.findByName(roleName);
 
     if (!roleEntity) {
       throw new BadRequestException(`Role ${roleName} not found`);
@@ -62,7 +61,7 @@ export class RegisterUserUseCase {
       passwordHash,
       firstName: command.firstName.trim(),
       lastName: command.lastName.trim(),
-      roles: [new Role({ id: roleEntity.id, name: roleEntity.name as 'demandeur' | 'aidant' | 'admin' })],
+      roles: [new Role({ id: roleEntity.id, name: roleEntity.name })],
       createdAt: this.clock.now(),
     });
 
