@@ -17,10 +17,19 @@ export function useMarketplace() {
     [getAccessToken, refreshSession],
   );
 
-  return {
-    upsertAidantProfile: client.upsertAidantProfile.bind(client),
-    publishRequest: client.publishRequest.bind(client),
-    listPublishedRequests: client.listPublishedRequests.bind(client),
-    applyToRequest: client.applyToRequest.bind(client),
-  };
+  return useMemo(
+    () => ({
+      upsertAidantProfile: client.upsertAidantProfile.bind(client),
+      publishRequest: client.publishRequest.bind(client),
+      listPublishedRequests: client.listPublishedRequests.bind(client),
+      listMyRequests: client.listMyRequests.bind(client),
+      getRequestDetail: client.getRequestDetail.bind(client),
+      listRequestCandidates: client.listRequestCandidates.bind(client),
+      applyToRequest: client.applyToRequest.bind(client),
+      listMyApplications: client.listMyApplications.bind(client),
+      getMyApplication: client.getMyApplication.bind(client),
+      decideApplication: client.decideApplication.bind(client),
+    }),
+    [client],
+  );
 }

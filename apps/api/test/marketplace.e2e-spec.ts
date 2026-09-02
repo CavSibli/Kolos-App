@@ -12,6 +12,7 @@ describe('Marketplace (e2e)', () => {
   let demandeurToken = '';
   let aidantToken = '';
   let publishedRequestId = 0;
+  let applicationId = 0;
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -112,6 +113,7 @@ describe('Marketplace (e2e)', () => {
       .expect(201);
 
     expect(response.body.status).toBe('PENDING');
+    applicationId = response.body.id;
   });
 
   it('rejects duplicate application', async () => {
@@ -143,5 +145,59 @@ describe('Marketplace (e2e)', () => {
         nbAidantsRequis: 1,
       })
       .expect(403);
+  });
+
+  it('lists my applications as aidant with context', async () => {
+    const response = await request(app.getHttpServer())
+      .get('/v1/applications/me')
+      .set('Authorization', `Bearer ${aidantToken}`)
+      .expect(200);
+
+    expect(response.body.items.length).toBeGreaterThan(0);
+    expect(response.body.items[0].request.id).toBe(publishedRequestId);
+    expect(response.body.items[0].status).toBe('PENDING');
+  });
+
+  it('lists my requests as demandeur', async () => {
+    const response = await request(app.getHttpServer())
+      .get('/v1/requests/mine')
+      .set('Authorization', `Bearer ${demandeurToken}`)
+      .expect(200);
+
+    expect(response.body.items.length).toBeGreaterThan(0);
+    expect(response.body.items[0].pendingApplications).toBeGreaterThanOrEqual(1);
+  });
+
+  it('lists candidates for demandeur request', async () => {
+    const response = await request(app.getHttpServer())
+      .get(`/v1/requests/${publishedRequestId}/applications`)
+      .set('Authorization', `Bearer ${demandeurToken}`)
+      .expect(200);
+
+    expect(response.body.length).toBeGreaterThan(0);
+    expect(response.body[0].status).toBe('PENDING');
+  });
+
+  it('accepts candidate and creates mission', async () => {
+    const response = await request(app.getHttpServer())
+      .post(`/v1/applications/${applicationId}/decision`)
+      .set('Authorization', `Bearer ${demandeurToken}`)
+      .send({ decision: 'ACCEPTED' })
+      .expect(201);
+
+    expect(response.body.status).toBe('ACCEPTED');
+    expect(response.body.requestStatus).toBe('ASSIGNED');
+    expect(response.body.mission.status).toBe('AWAITING_PAYMENT');
+  });
+
+  it('shows mission on aidant application detail', async () => {
+    const response = await request(app.getHttpServer())
+      .get(`/v1/applications/me/${applicationId}`)
+      .set('Authorization', `Bearer ${aidantToken}`)
+      .expect(200);
+
+    expect(response.body.status).toBe('ACCEPTED');
+    expect(response.body.mission.status).toBe('AWAITING_PAYMENT');
+    expect(response.body.participation.status).toBe('SELECTED');
   });
 });

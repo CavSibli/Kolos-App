@@ -95,3 +95,48 @@ button:disabled {
 ul {
   padding-left: 1.25rem;
 }
+
+.badge {
+  display: inline-block;
+  padding: 0.2rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  background: #e2e8f0;
+}
+
+.badge-pending {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.badge-accepted,
+.badge-selected {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.badge-refused {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.actions button:last-child {
+  background: #64748b;
+}
+
+.apply-form {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #bfdbfe;
+}
+
+.apply-form h3 {
+  margin: 0 0 0.5rem;
+  font-size: 1rem;
+}

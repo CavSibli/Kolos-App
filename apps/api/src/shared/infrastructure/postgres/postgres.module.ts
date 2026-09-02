@@ -10,6 +10,10 @@ import { StatutCandidatureOrmEntity } from '@shared/reference-data/infrastructur
 import { ProfilAidantOrmEntity } from '@modules/aidant-profile/infrastructure/typeorm/entities/profil-aidant.orm-entity';
 import { DemandeOrmEntity } from '@modules/requests/infrastructure/typeorm/entities/demande.orm-entity';
 import { CandidatureOrmEntity } from '@modules/applications/infrastructure/typeorm/entities/candidature.orm-entity';
+import { StatutMissionOrmEntity } from '@shared/reference-data/infrastructure/typeorm/entities/statut-mission.orm-entity';
+import { StatutParticipationOrmEntity } from '@shared/reference-data/infrastructure/typeorm/entities/statut-participation.orm-entity';
+import { MissionOrmEntity } from '@modules/missions/infrastructure/typeorm/entities/mission.orm-entity';
+import { ParticipationOrmEntity } from '@modules/missions/infrastructure/typeorm/entities/participation.orm-entity';
 
 const postgresEntities = [
   UserOrmEntity,
@@ -18,9 +22,13 @@ const postgresEntities = [
   StatutVerificationOrmEntity,
   StatutDemandeOrmEntity,
   StatutCandidatureOrmEntity,
+  StatutMissionOrmEntity,
+  StatutParticipationOrmEntity,
   ProfilAidantOrmEntity,
   DemandeOrmEntity,
   CandidatureOrmEntity,
+  MissionOrmEntity,
+  ParticipationOrmEntity,
 ];
 
 @Module({

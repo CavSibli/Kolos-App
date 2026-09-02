@@ -15,6 +15,7 @@ export class JwtTokenIssuer implements TokenIssuerPort {
     userId: string;
     email: string;
     roles: string[];
+    sessionId: string;
   }): Promise<{ token: string; expiresInSeconds: number }> {
     const ttl = this.configService.get<string>('auth.accessTtl') ?? '15m';
     const expiresInSeconds = this.parseTtlToSeconds(ttl);
@@ -24,6 +25,7 @@ export class JwtTokenIssuer implements TokenIssuerPort {
         sub: payload.userId,
         email: payload.email,
         roles: payload.roles,
+        sid: payload.sessionId,
       },
       {
         secret: this.configService.getOrThrow<string>('auth.accessSecret'),

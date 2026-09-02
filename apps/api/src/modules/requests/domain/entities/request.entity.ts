@@ -136,4 +136,12 @@ export class Request extends Entity<RequestProps> {
   get updatedAt(): Date {
     return this.getProps().updatedAt;
   }
+
+  withStatus(statusCode: DemandeStatusCode, now: Date): Request {
+    return new Request({
+      ...this.getProps(),
+      statusCode,
+      updatedAt: now,
+    });
+  }
 }
