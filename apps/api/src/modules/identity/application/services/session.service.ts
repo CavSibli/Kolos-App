@@ -29,6 +29,7 @@ export class SessionService {
       userId: user.id.toString(),
       email: user.email.toString(),
       roles: user.roles.map((role) => role.name),
+      sessionId: tokenId,
     });
 
     const refresh = await this.tokenIssuer.issueRefreshToken({
@@ -80,6 +81,7 @@ export class SessionService {
       userId: user.id.toString(),
       email: user.email.toString(),
       roles: user.roles.map((role) => role.name),
+      sessionId: newTokenId,
     });
 
     const refresh = await this.tokenIssuer.issueRefreshToken({

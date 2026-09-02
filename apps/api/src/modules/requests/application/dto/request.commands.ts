@@ -30,6 +30,23 @@ export interface RequestResult {
 }
 
 export interface ListPublishedRequestsQuery {
+  aidantId?: string;
   page?: number;
   pageSize?: number;
+}
+
+export interface PublishedRequestResult extends RequestResult {
+  myApplicationStatus: string | null;
+}
+
+export interface ListMyRequestsQuery {
+  demandeurId: string;
+  page?: number;
+  pageSize?: number;
+}
+
+export interface RequestWithStatsResult extends RequestResult {
+  pendingApplications: number;
+  acceptedApplications: number;
+  mission: { id: number; status: string; montantTotal: number } | null;
 }

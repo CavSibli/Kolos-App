@@ -30,6 +30,16 @@ export interface RequestResponse {
   createdAt: string;
 }
 
+export interface PublishedRequestResponse extends RequestResponse {
+  myApplicationStatus: string | null;
+}
+
+export interface RequestWithStatsResponse extends RequestResponse {
+  pendingApplications: number;
+  acceptedApplications: number;
+  mission: { id: number; status: string; montantTotal: number } | null;
+}
+
 export interface PublishRequestBody {
   titre: string;
   description: string;
@@ -50,6 +60,20 @@ export interface PaginatedRequestsResponse {
   pageSize: number;
 }
 
+export interface PaginatedPublishedRequestsResponse {
+  items: PublishedRequestResponse[];
+  total: number;
+  page: number;
+  pageSize: number;
+}
+
+export interface PaginatedRequestsWithStatsResponse {
+  items: RequestWithStatsResponse[];
+  total: number;
+  page: number;
+  pageSize: number;
+}
+
 export interface ApplicationResponse {
   id: number;
   demandeId: number;
@@ -58,6 +82,54 @@ export interface ApplicationResponse {
   message: string | null;
   prixPropose: number | null;
   createdAt: string;
+}
+
+export interface ApplicationWithContextResponse {
+  id: number;
+  status: string;
+  message: string | null;
+  prixPropose: number | null;
+  createdAt: string;
+  request: RequestResponse;
+  mission: { id: number; status: string; montantTotal: number } | null;
+  participation: {
+    id: number;
+    status: string;
+    montantConvenu: number;
+  } | null;
+}
+
+export interface PaginatedApplicationsWithContextResponse {
+  items: ApplicationWithContextResponse[];
+  total: number;
+  page: number;
+  pageSize: number;
+}
+
+export interface CandidateResponse {
+  applicationId: number;
+  status: string;
+  message: string | null;
+  prixPropose: number | null;
+  createdAt: string;
+  aidant: {
+    userId: string;
+    firstName: string;
+    lastName: string;
+    bio: string | null;
+    rayonIntervention: number | null;
+  };
+}
+
+export interface DecideApplicationBody {
+  decision: 'ACCEPTED' | 'REFUSED';
+}
+
+export interface DecideApplicationResponse {
+  applicationId: number;
+  status: string;
+  requestStatus: string;
+  mission: { id: number; status: string; montantTotal: number } | null;
 }
 
 export interface ApplyToRequestBody {

@@ -19,6 +19,7 @@ import { SessionService } from './application/services/session.service';
 import { AuthController } from './presentation/http/controllers/auth.controller';
 import { MeController } from './presentation/http/controllers/me.controller';
 import { AuthSharedModule } from '@shared/auth/auth-shared.module';
+import { JwtAccessStrategy } from '@shared/auth/jwt-access.strategy';
 import {
   USER_REPOSITORY,
   REFRESH_TOKEN_REPOSITORY,
@@ -88,6 +89,7 @@ import {
       useExisting: CLOCK,
     },
     SessionService,
+    JwtAccessStrategy,
     RegisterUserUseCase,
     LoginUseCase,
     RefreshTokenUseCase,
@@ -95,6 +97,6 @@ import {
     GetCurrentUserUseCase,
     UpdateProfileUseCase,
   ],
-  exports: [USER_REPOSITORY, CLOCK],
+  exports: [REFRESH_TOKEN_REPOSITORY, CLOCK, USER_REPOSITORY],
 })
 export class IdentityModule {}

@@ -32,5 +32,5 @@ export const envValidationSchema = Joi.object({
   ADMIN_SEED_PASSWORD: Joi.string().min(8).default('Admin1234!'),
 
   THROTTLE_TTL: Joi.number().default(60000),
-  THROTTLE_LIMIT: Joi.number().default(10),
+  THROTTLE_LIMIT: Joi.number().default(120),
 });

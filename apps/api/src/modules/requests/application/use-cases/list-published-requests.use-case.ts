@@ -4,9 +4,9 @@ import { RequestRepository } from '../../domain/repositories/request.repository'
 import { REQUEST_REPOSITORY } from '../../requests.tokens';
 import {
   ListPublishedRequestsQuery,
-  RequestResult,
+  PublishedRequestResult,
 } from '../dto/request.commands';
-import { Request } from '../../domain/entities/request.entity';
+import { toRequestResult } from '../mappers/request-result.mapper';
 
 @Injectable()
 export class ListPublishedRequestsUseCase {
@@ -17,39 +17,24 @@ export class ListPublishedRequestsUseCase {
 
   async execute(
     query: ListPublishedRequestsQuery,
-  ): Promise<PageResult<RequestResult>> {
+  ): Promise<PageResult<PublishedRequestResult>> {
     const page = query.page ?? 1;
     const pageSize = query.pageSize ?? 20;
 
     const result = await this.requestRepository.findPublished({
       page,
       pageSize,
+      aidantId: query.aidantId,
     });
 
     return {
-      items: result.items.map((request) => this.toResult(request)),
+      items: result.items.map((item) => ({
+        ...toRequestResult(item.request),
+        myApplicationStatus: item.myApplicationStatus,
+      })),
       total: result.total,
       page: result.page,
       pageSize: result.pageSize,
-    };
-  }
-
-  private toResult(request: Request): RequestResult {
-    return {
-      id: request.id!,
-      demandeurId: request.demandeurId,
-      status: request.statusCode,
-      titre: request.titre,
-      description: request.description,
-      contraintesPhysiques: request.contraintesPhysiques,
-      adresse: request.adresse,
-      latitude: request.latitude,
-      longitude: request.longitude,
-      dateMission: request.dateMission.toISOString(),
-      dureeEstimee: request.dureeEstimee,
-      nbAidantsRequis: request.nbAidantsRequis,
-      budgetEstime: request.budgetEstime,
-      createdAt: request.createdAt.toISOString(),
     };
   }
 }

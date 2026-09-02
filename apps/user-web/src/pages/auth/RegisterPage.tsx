@@ -26,11 +26,15 @@ export function RegisterPage() {
       navigate('/');
     } catch (err) {
       if (err instanceof ApiClientError) {
-        setError(
-          typeof err.body.message === 'string'
-            ? err.body.message
-            : 'Inscription impossible',
-        );
+        if (err.statusCode === 409) {
+          setError('Cet email est déjà utilisé.');
+        } else {
+          setError(
+            typeof err.body.message === 'string'
+              ? err.body.message
+              : 'Inscription impossible',
+          );
+        }
       } else {
         setError('Une erreur est survenue');
       }

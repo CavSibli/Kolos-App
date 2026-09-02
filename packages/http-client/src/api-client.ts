@@ -56,7 +56,10 @@ export class ApiClient {
     if (!response.ok) {
       const body = (await response.json().catch(() => ({
         statusCode: response.status,
-        message: response.statusText,
+        message:
+          response.status >= 500
+            ? 'Le serveur API est indisponible. Attendez la fin du démarrage (pnpm dev), puis réessayez.'
+            : response.statusText,
         timestamp: new Date().toISOString(),
         path,
       }))) as ApiErrorResponse;

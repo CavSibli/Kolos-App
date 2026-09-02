@@ -35,12 +35,20 @@ export function HomePage() {
               <li>
                 <Link to="/requests">Voir les demandes disponibles</Link>
               </li>
+              <li>
+                <Link to="/applications/mine">Mes candidatures</Link>
+              </li>
             </>
           ) : null}
           {user?.roles.includes('demandeur') ? (
-            <li>
-              <Link to="/requests/new">Publier une demande</Link>
-            </li>
+            <>
+              <li>
+                <Link to="/requests/new">Publier une demande</Link>
+              </li>
+              <li>
+                <Link to="/requests/mine">Mes demandes</Link>
+              </li>
+            </>
           ) : null}
         </ul>
       </nav>

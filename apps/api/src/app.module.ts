@@ -12,6 +12,7 @@ import { IdentityModule } from './modules/identity/identity.module';
 import { AidantProfileModule } from './modules/aidant-profile/aidant-profile.module';
 import { RequestsModule } from './modules/requests/requests.module';
 import { ApplicationsModule } from './modules/applications/applications.module';
+import { MissionsModule } from './modules/missions/missions.module';
 import { AllExceptionsFilter } from './shared/presentation/common/filters/all-exceptions.filter';
 
 @Module({
@@ -29,7 +30,7 @@ import { AllExceptionsFilter } from './shared/presentation/common/filters/all-ex
         throttlers: [
           {
             ttl: configService.get<number>('app.throttleTtl') ?? 60000,
-            limit: configService.get<number>('app.throttleLimit') ?? 10,
+            limit: configService.get<number>('app.throttleLimit') ?? 120,
           },
         ],
       }),
@@ -42,6 +43,7 @@ import { AllExceptionsFilter } from './shared/presentation/common/filters/all-ex
     AidantProfileModule,
     RequestsModule,
     ApplicationsModule,
+    MissionsModule,
   ],
   providers: [
     {

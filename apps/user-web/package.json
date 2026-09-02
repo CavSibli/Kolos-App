@@ -4,7 +4,7 @@
   "version": "0.0.1",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "node ../../scripts/wait-for-api.mjs && vite",
     "build": "tsc -b && vite build",
     "preview": "vite preview",
     "lint": "echo \"no lint configured\""

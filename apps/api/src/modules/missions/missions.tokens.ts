@@ -1,0 +1,1 @@
+export const MISSION_REPOSITORY = Symbol('MISSION_REPOSITORY');

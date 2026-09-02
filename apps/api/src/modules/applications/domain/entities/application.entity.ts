@@ -22,9 +22,12 @@ export class Application extends Entity<ApplicationProps> {
     prixPropose: number | null;
     now: Date;
   }): Application {
-    if (props.request.statusCode !== 'PUBLISHED') {
+    if (
+      props.request.statusCode !== 'PUBLISHED' &&
+      props.request.statusCode !== 'PARTIALLY_ASSIGNED'
+    ) {
       throw new UnprocessableEntityException(
-        'Seules les demandes publiées acceptent des candidatures',
+        'Seules les demandes ouvertes acceptent des candidatures',
       );
     }
 
@@ -79,5 +82,13 @@ export class Application extends Entity<ApplicationProps> {
 
   get updatedAt(): Date {
     return this.getProps().updatedAt;
+  }
+
+  withStatus(statusCode: CandidatureStatusCode, now: Date): Application {
+    return new Application({
+      ...this.getProps(),
+      statusCode,
+      updatedAt: now,
+    });
   }
 }

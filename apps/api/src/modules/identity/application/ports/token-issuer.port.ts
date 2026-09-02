@@ -11,6 +11,7 @@ export interface TokenIssuerPort {
     userId: string;
     email: string;
     roles: string[];
+    sessionId: string;
   }): Promise<{ token: string; expiresInSeconds: number }>;
 
   issueRefreshToken(payload: {

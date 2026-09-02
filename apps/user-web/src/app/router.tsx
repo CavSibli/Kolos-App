@@ -7,6 +7,10 @@ import { RegisterPage } from '../pages/auth/RegisterPage';
 import { AidantProfilePage } from '../pages/profile/AidantProfilePage';
 import { PublishRequestPage } from '../pages/requests/PublishRequestPage';
 import { RequestsListPage } from '../pages/requests/RequestsListPage';
+import { MyRequestsPage } from '../pages/requests/MyRequestsPage';
+import { RequestCandidatesPage } from '../pages/requests/RequestCandidatesPage';
+import { MyApplicationsPage } from '../pages/applications/MyApplicationsPage';
+import { ApplicationDetailPage } from '../pages/applications/ApplicationDetailPage';
 
 export function AppRouter() {
   return (
@@ -42,11 +46,51 @@ export function AppRouter() {
         }
       />
       <Route
+        path="/requests/mine/:id"
+        element={
+          <ProtectedRoute>
+            <RoleRoute roles={['demandeur']}>
+              <RequestCandidatesPage />
+            </RoleRoute>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/requests/mine"
+        element={
+          <ProtectedRoute>
+            <RoleRoute roles={['demandeur']}>
+              <MyRequestsPage />
+            </RoleRoute>
+          </ProtectedRoute>
+        }
+      />
+      <Route
         path="/requests"
         element={
           <ProtectedRoute>
             <RoleRoute roles={['aidant']}>
               <RequestsListPage />
+            </RoleRoute>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/applications/mine/:id"
+        element={
+          <ProtectedRoute>
+            <RoleRoute roles={['aidant']}>
+              <ApplicationDetailPage />
+            </RoleRoute>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/applications/mine"
+        element={
+          <ProtectedRoute>
+            <RoleRoute roles={['aidant']}>
+              <MyApplicationsPage />
             </RoleRoute>
           </ProtectedRoute>
         }
