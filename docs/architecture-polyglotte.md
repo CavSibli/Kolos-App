@@ -42,17 +42,13 @@ Infra déjà branchée (`MongoModule` + health) ; collections métier à livrer 
 
 ---
 
-## 3. Écart MPD messages (à traiter en T07)
+## 3. Écart MPD messages — **traité (T07)**
 
-Le MPD Semaine 1 (`MPD Merise - Kolos DBML.txt`) modélise encore la messagerie en **tables relationnelles** :
+Le MPD Semaine 1 modélisait la messagerie en tables relationnelles (`conversations`, `participant_conversation`, `messages`, `lectures_message`).
 
-- `conversations`
-- `participant_conversation`
-- `messages`
-- `lectures_message`
-
-**Décision produit :** ces tables **ne seront pas** migrées en Postgres. La messagerie sera stockée en Mongo (Option C).  
-Jusqu’à T07, le MPD et cette note divergent sur ce point — **pas de double vérité d’implémentation** (aucune table messages en PG dans le code actuel). T07 doit marquer ces tables hors MPD relationnel / « stocké en Mongo ».
+**Amendement T07 :** ces tables sont **hors MPD PostgreSQL** ; stockage cible = **MongoDB** (Option C).  
+Détail du diff : [`mpd-messagerie-mongo.md`](./mpd-messagerie-mongo.md).  
+Fichiers Semaine 1 annotés en conséquence. **Pas de double vérité** PG+Mongo pour les messages (aucune table messages en PG dans le code ni dans le MPD actif).
 
 ---
 
