@@ -54,7 +54,7 @@ export class TypeOrmApplicationRepository implements ApplicationRepository {
       application.statusCode,
     );
     const partial = ApplicationOrmMapper.toOrm(application, statutId);
-    let entity = partial.id
+    const entity = partial.id
       ? await this.candidatureRepo.findOne({
           where: { id: partial.id },
           relations: ['statutCandidature'],

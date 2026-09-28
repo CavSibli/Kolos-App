@@ -6,7 +6,7 @@
     "dev": "nest start --watch",
     "start": "nest start",
     "build": "nest build",
-    "lint": "echo \"no lint configured\"",
+    "lint": "eslint \"{src,test}/**/*.ts\" --max-warnings 0",
     "test": "jest",
     "test:e2e": "jest --config ./test/jest-e2e.js",
     "typeorm:migrate": "typeorm-ts-node-commonjs migration:run -d src/shared/infrastructure/postgres/postgres.data-source.ts",
