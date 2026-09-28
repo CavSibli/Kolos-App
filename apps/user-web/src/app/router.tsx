@@ -21,7 +21,11 @@ import { RequestCandidatesPage } from '../pages/requests/RequestCandidatesPage';
 import { MyApplicationsPage } from '../pages/applications/MyApplicationsPage';
 import { ApplicationDetailPage } from '../pages/applications/ApplicationDetailPage';
 import { MissionMessagesPage } from '../pages/missions/MissionMessagesPage';
-import { AdminHomePage } from '../pages/admin/AdminHomePage';
+import { AdminDashboardPage } from '../pages/admin/AdminDashboardPage';
+import { AdminUsersPage } from '../pages/admin/AdminUsersPage';
+import { AdminRequestsPage } from '../pages/admin/AdminRequestsPage';
+import { AdminMissionMessagesPage } from '../pages/admin/AdminMissionMessagesPage';
+import { AdminReportsPage } from '../pages/admin/AdminReportsPage';
 import { NotFoundPage } from '../pages/errors/NotFoundPage';
 
 function ProtectedAppShell() {
@@ -195,7 +199,14 @@ export function AppRouter() {
       </Route>
 
       <Route path="/admin" element={<ProtectedAdminShell />}>
-        <Route index element={<AdminHomePage />} />
+        <Route index element={<AdminDashboardPage />} />
+        <Route path="users" element={<AdminUsersPage />} />
+        <Route path="requests" element={<AdminRequestsPage />} />
+        <Route path="reports" element={<AdminReportsPage />} />
+        <Route
+          path="missions/:missionId/messages"
+          element={<AdminMissionMessagesPage />}
+        />
       </Route>
 
       <Route path="*" element={<NotFoundPage />} />

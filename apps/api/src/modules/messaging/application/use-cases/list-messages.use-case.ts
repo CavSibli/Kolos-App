@@ -21,7 +21,9 @@ export class ListMessagesUseCase {
   ) {}
 
   async execute(command: ListMessagesCommand): Promise<MessageResult[]> {
-    await this.access.assertParticipant(command.missionId, command.userId);
+    await this.access.assertParticipant(command.missionId, command.userId, {
+      asAdmin: command.asAdmin === true,
+    });
 
     const conversation = await this.conversationRepository.findByMissionId(
       command.missionId,

@@ -55,6 +55,52 @@ export class TypeOrmUserRepository implements UserRepository {
     return count > 0;
   }
 
+  async listForAdmin(options: {
+    page: number;
+    pageSize: number;
+    q?: string;
+    role?: string;
+    banned?: boolean;
+  }): Promise<{ items: User[]; total: number; page: number; pageSize: number }> {
+    const qb = this.userRepo
+      .createQueryBuilder('u')
+      .leftJoinAndSelect('u.roles', 'r')
+      .orderBy('u.createdAt', 'DESC')
+      .skip((options.page - 1) * options.pageSize)
+      .take(options.pageSize);
+
+    if (options.q?.trim()) {
+      const q = `%${options.q.trim().toLowerCase()}%`;
+      qb.andWhere(
+        '(LOWER(u.email) LIKE :q OR LOWER(u.firstName) LIKE :q OR LOWER(u.lastName) LIKE :q)',
+        { q },
+      );
+    }
+
+    if (options.role) {
+      qb.andWhere('r.name = :role', { role: options.role });
+    }
+
+    if (options.banned === true) {
+      qb.andWhere('u.bannedAt IS NOT NULL').andWhere(
+        '(u.banUntil IS NULL OR u.banUntil > NOW())',
+      );
+    } else if (options.banned === false) {
+      qb.andWhere(
+        '(u.bannedAt IS NULL OR (u.banUntil IS NOT NULL AND u.banUntil <= NOW()))',
+      );
+    }
+
+    const [entities, total] = await qb.getManyAndCount();
+
+    return {
+      items: entities.map((entity) => UserOrmMapper.toDomain(entity)),
+      total,
+      page: options.page,
+      pageSize: options.pageSize,
+    };
+  }
+
   async save(user: User): Promise<User> {
     const partial = UserOrmMapper.toOrm(user);
     let entity = partial.id

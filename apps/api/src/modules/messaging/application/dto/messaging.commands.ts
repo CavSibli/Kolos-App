@@ -1,12 +1,14 @@
 export interface ListMessagesCommand {
   missionId: number;
   userId: string;
+  asAdmin?: boolean;
 }
 
 export interface PostMessageCommand {
   missionId: number;
   userId: string;
   body: string;
+  asAdmin?: boolean;
 }
 
 export interface MessageResult {

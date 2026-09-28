@@ -32,7 +32,7 @@ const ACTIONS: { code: ModerationActionCode; label: string; variant: 'primary' |
   { code: 'DISMISS', label: 'Rejeter', variant: 'danger' },
 ];
 
-export function AdminHomePage() {
+export function AdminReportsPage() {
   const { listAdminReports, postAdminReportAction } = useMarketplace();
   const [reports, setReports] = useState<AdminReportListItem[]>([]);
   const [total, setTotal] = useState(0);
@@ -101,7 +101,7 @@ export function AdminHomePage() {
       <PageMeta
         title="Signalements"
         description="Liste des signalements à modérer."
-        path="/admin"
+        path="/admin/reports"
         noIndex
       />
       <h1>Signalements</h1>
@@ -139,20 +139,26 @@ export function AdminHomePage() {
               <span>Auteur : {report.auteurId}</span>
               <span>{formatDateTime(report.createdAt)}</span>
             </p>
-            {report.status === 'OPEN' || report.status === 'IN_REVIEW' ? (
-              <div className="ds-actions">
-                {ACTIONS.map((item) => (
-                  <Button
-                    key={item.code}
-                    variant={item.variant}
-                    disabled={busyReportId === report.id}
-                    onClick={() => void handleAction(report.id, item.code)}
-                  >
-                    {item.label}
-                  </Button>
-                ))}
-              </div>
-            ) : null}
+            <div className="ds-actions">
+              <Link
+                to={`/admin/missions/${report.missionId}/messages`}
+                className="ds-button ds-button--secondary"
+              >
+                Messagerie
+              </Link>
+              {report.status === 'OPEN' || report.status === 'IN_REVIEW'
+                ? ACTIONS.map((item) => (
+                    <Button
+                      key={item.code}
+                      variant={item.variant}
+                      disabled={busyReportId === report.id}
+                      onClick={() => void handleAction(report.id, item.code)}
+                    >
+                      {item.label}
+                    </Button>
+                  ))
+                : null}
+            </div>
           </Card>
         ))}
       </div>

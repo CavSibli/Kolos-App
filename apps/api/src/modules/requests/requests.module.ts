@@ -31,6 +31,6 @@ import { REQUEST_REPOSITORY } from './requests.tokens';
     ListMyRequestsUseCase,
     GetRequestDetailUseCase,
   ],
-  exports: [REQUEST_REPOSITORY],
+  exports: [REQUEST_REPOSITORY, PublishRequestUseCase],
 })
 export class RequestsModule {}

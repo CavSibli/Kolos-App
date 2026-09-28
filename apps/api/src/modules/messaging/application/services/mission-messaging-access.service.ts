@@ -24,6 +24,7 @@ export class MissionMessagingAccessService {
   async assertParticipant(
     missionId: number,
     userId: string,
+    options?: { asAdmin?: boolean },
   ): Promise<{ mission: Mission; request: Request }> {
     const mission = await this.missionRepository.findById(missionId);
     if (!mission) {
@@ -39,6 +40,10 @@ export class MissionMessagingAccessService {
     const request = await this.requestRepository.findById(mission.demandeId);
     if (!request) {
       throw new NotFoundException('Demande introuvable');
+    }
+
+    if (options?.asAdmin) {
+      return { mission, request };
     }
 
     const isDemandeur = request.demandeurId === userId;

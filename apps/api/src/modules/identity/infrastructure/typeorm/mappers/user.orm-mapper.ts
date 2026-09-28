@@ -22,6 +22,9 @@ export class UserOrmMapper {
           }),
       ),
       createdAt: entity.createdAt,
+      bannedAt: entity.bannedAt ?? null,
+      banUntil: entity.banUntil ?? null,
+      banReason: entity.banReason ?? null,
     });
   }
 
@@ -33,6 +36,9 @@ export class UserOrmMapper {
       firstName: user.firstName,
       lastName: user.lastName,
       createdAt: user.createdAt,
+      bannedAt: user.bannedAt,
+      banUntil: user.banUntil,
+      banReason: user.banReason,
     };
   }
 }

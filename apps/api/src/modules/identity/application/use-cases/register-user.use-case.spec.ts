@@ -98,6 +98,9 @@ describe('LoginUseCase', () => {
     lastName: 'User',
     roles: [new Role({ id: 1, name: 'demandeur' })],
     createdAt: new Date(),
+    bannedAt: null,
+    banUntil: null,
+    banReason: null,
   });
 
   const userRepository = {
@@ -110,6 +113,10 @@ describe('LoginUseCase', () => {
   const passwordHasher = {
     hash: jest.fn(),
     compare: jest.fn().mockResolvedValue(true),
+  };
+
+  const clock = {
+    now: jest.fn().mockReturnValue(new Date('2026-09-28T21:00:00.000Z')),
   };
 
   const sessionService = {
@@ -133,6 +140,7 @@ describe('LoginUseCase', () => {
   const useCase = new LoginUseCase(
     userRepository as never,
     passwordHasher as never,
+    clock as never,
     sessionService as never,
   );
 

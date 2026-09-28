@@ -200,6 +200,103 @@ export interface ModeratedReportActionResponse {
   reportStatus: ReportStatusCode;
 }
 
+export interface AdminStatsResponse {
+  usersTotal: number;
+  requestsTotal: number;
+  requestsByStatus: Record<string, number>;
+  missionsTotal: number;
+  reportsOpen: number;
+  reportsTotal: number;
+  messagesTotal: number;
+}
+
+export interface AdminUserResponse {
+  id: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  roles: Array<'demandeur' | 'aidant' | 'admin'>;
+  createdAt: string;
+  banned: boolean;
+  bannedAt: string | null;
+  banUntil: string | null;
+  banReason: string | null;
+}
+
+export interface PaginatedAdminUsersResponse {
+  items: AdminUserResponse[];
+  total: number;
+  page: number;
+  pageSize: number;
+}
+
+export interface CreateAdminUserBody {
+  email: string;
+  password: string;
+  firstName: string;
+  lastName: string;
+  role: 'demandeur' | 'aidant';
+}
+
+export interface UpdateAdminUserBody {
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+  roles?: Array<'demandeur' | 'aidant' | 'admin'>;
+}
+
+export interface BanAdminUserBody {
+  until?: string | null;
+  reason?: string;
+}
+
+export interface AdminRequestListItem {
+  id: number;
+  demandeurId: string;
+  status: string;
+  titre: string;
+  description: string;
+  adresse: string;
+  dateMission: string;
+  dureeEstimee: number;
+  nbAidantsRequis: number;
+  budgetEstime: number | null;
+  pendingApplications: number;
+  acceptedApplications: number;
+  mission: { id: number; status: string } | null;
+  createdAt: string;
+}
+
+export interface PaginatedAdminRequestsResponse {
+  items: AdminRequestListItem[];
+  total: number;
+  page: number;
+  pageSize: number;
+}
+
+export interface CreateAdminRequestBody {
+  demandeurId: string;
+  titre: string;
+  description: string;
+  adresse: string;
+  dateMission: string;
+  dureeEstimee: number;
+  nbAidantsRequis: number;
+  budgetEstime?: number | null;
+  contraintesPhysiques?: string | null;
+}
+
+export interface UpdateAdminRequestBody {
+  titre?: string;
+  description?: string;
+  adresse?: string;
+  dateMission?: string;
+  dureeEstimee?: number;
+  nbAidantsRequis?: number;
+  budgetEstime?: number | null;
+  contraintesPhysiques?: string | null;
+}
+
 export interface MissionMessageResponse {
   id: string;
   conversationId: string;
