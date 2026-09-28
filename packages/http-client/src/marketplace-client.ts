@@ -11,6 +11,7 @@ import type {
   DecideApplicationBody,
   DecideApplicationResponse,
   MissionMessageResponse,
+  PaginatedAdminReportsResponse,
   PaginatedApplicationsWithContextResponse,
   PaginatedPublishedRequestsResponse,
   PaginatedRequestsWithStatsResponse,
@@ -114,6 +115,21 @@ export class MarketplaceClient {
     return this.api.post<CreateReportResponse>(
       `/missions/${missionId}/reports`,
       body,
+    );
+  }
+
+  listAdminReports(params?: {
+    page?: number;
+    pageSize?: number;
+  }): Promise<PaginatedAdminReportsResponse> {
+    const search = new URLSearchParams();
+    if (params?.page != null) search.set('page', String(params.page));
+    if (params?.pageSize != null) {
+      search.set('pageSize', String(params.pageSize));
+    }
+    const query = search.toString();
+    return this.api.get<PaginatedAdminReportsResponse>(
+      `/admin/reports${query ? `?${query}` : ''}`,
     );
   }
 

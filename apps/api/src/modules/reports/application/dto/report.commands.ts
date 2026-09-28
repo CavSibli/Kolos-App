@@ -1,4 +1,8 @@
-import type { ReportMotifCode } from '../../domain/entities/report.entity';
+import type {
+  ReportMotifCode,
+  ReportPriorityCode,
+  ReportStatusCode,
+} from '../../domain/entities/report.entity';
 
 export interface CreateReportCommand {
   missionId: number;
@@ -14,4 +18,27 @@ export interface CreateReportResult {
   status: string;
   description: string;
   createdAt: string;
+}
+
+export interface ListAdminReportsCommand {
+  page?: number;
+  pageSize?: number;
+}
+
+export interface AdminReportListItemResult {
+  id: number;
+  missionId: number;
+  auteurId: string;
+  motif: ReportMotifCode;
+  status: ReportStatusCode;
+  priority: ReportPriorityCode;
+  description: string;
+  createdAt: string;
+}
+
+export interface ListAdminReportsResult {
+  items: AdminReportListItemResult[];
+  total: number;
+  page: number;
+  pageSize: number;
 }
