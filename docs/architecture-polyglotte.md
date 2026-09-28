@@ -42,17 +42,13 @@ Infra déjà branchée (`MongoModule` + health) ; collections métier à livrer 
 
 ---
 
-## 3. Écart MPD messages (à traiter en T07)
+## 3. Écart MPD messages — **traité (T07)**
 
-Le MPD Semaine 1 (`MPD Merise - Kolos DBML.txt`) modélise encore la messagerie en **tables relationnelles** :
+Le MPD Semaine 1 modélisait la messagerie en tables relationnelles (`conversations`, `participant_conversation`, `messages`, `lectures_message`).
 
-- `conversations`
-- `participant_conversation`
-- `messages`
-- `lectures_message`
-
-**Décision produit :** ces tables **ne seront pas** migrées en Postgres. La messagerie sera stockée en Mongo (Option C).  
-Jusqu’à T07, le MPD et cette note divergent sur ce point — **pas de double vérité d’implémentation** (aucune table messages en PG dans le code actuel). T07 doit marquer ces tables hors MPD relationnel / « stocké en Mongo ».
+**Amendement T07 :** ces tables sont **hors MPD PostgreSQL** ; stockage cible = **MongoDB** (Option C).  
+Détail du diff : [`mpd-messagerie-mongo.md`](./mpd-messagerie-mongo.md).  
+Fichiers Semaine 1 annotés en conséquence. **Pas de double vérité** PG+Mongo pour les messages (aucune table messages en PG dans le code ni dans le MPD actif).
 
 ---
 
@@ -98,7 +94,7 @@ Autres contraintes documentées dans le README : **pnpm 9+**, Docker Compose pou
 | Postgres marketplace | Opérationnel (parcours jusqu’à `AWAITING_PAYMENT`) | + mock paiement (T09) + signalement (T10) |
 | Mongo connexion | `MongoModule` + health | inchangé |
 | Mongo métier | Absent | Messagerie (T11) + `moderation_actions` (T12) + écriture admin (T14) |
-| Conception MPD | Messages encore en tables PG (Semaine 1) | T07 : hors relationnel / Mongo |
+| Conception MPD | Messages hors MPD PG (T07) ; amendement `docs/mpd-messagerie-mongo.md` | Cohérence Option C tenue |
 | UML UC / séquences | Partiel Semaine 1 | T08 : messagerie, admin, signalement |
 
 ---
