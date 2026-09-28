@@ -1,4 +1,5 @@
-import { IsIn, IsString, MinLength } from 'class-validator';
+import { Type } from 'class-transformer';
+import { IsIn, IsInt, IsOptional, IsString, Min, MinLength } from 'class-validator';
 import type { ReportMotifCode } from '../../../domain/entities/report.entity';
 
 export class CreateReportDto {
@@ -15,4 +16,18 @@ export class CreateReportDto {
   @IsString()
   @MinLength(1)
   description!: string;
+}
+
+export class ListAdminReportsQueryDto {
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  page?: number;
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  pageSize?: number;
 }

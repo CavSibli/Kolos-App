@@ -15,7 +15,7 @@ async function seedAdminUser() {
   const userRepo = dataSource.getRepository(UserOrmEntity);
   const roleRepo = dataSource.getRepository(RoleOrmEntity);
 
-  const adminEmail = process.env.ADMIN_SEED_EMAIL ?? 'admin@kolos.local';
+  const adminEmail = process.env.ADMIN_SEED_EMAIL ?? 'admin@example.com';
   const adminPassword = process.env.ADMIN_SEED_PASSWORD ?? 'Admin1234!';
 
   const existing = await userRepo.findOne({ where: { email: adminEmail } });

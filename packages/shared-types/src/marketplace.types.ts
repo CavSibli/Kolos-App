@@ -160,6 +160,28 @@ export interface CreateReportResponse {
   createdAt: string;
 }
 
+export type ReportStatusCode = 'OPEN' | 'IN_REVIEW' | 'RESOLVED' | 'REJECTED';
+
+export type ReportPriorityCode = 'LOW' | 'NORMAL' | 'HIGH' | 'CRITICAL';
+
+export interface AdminReportListItem {
+  id: number;
+  missionId: number;
+  auteurId: string;
+  motif: ReportMotifCode;
+  status: ReportStatusCode;
+  priority: ReportPriorityCode;
+  description: string;
+  createdAt: string;
+}
+
+export interface PaginatedAdminReportsResponse {
+  items: AdminReportListItem[];
+  total: number;
+  page: number;
+  pageSize: number;
+}
+
 export interface MissionMessageResponse {
   id: string;
   conversationId: string;

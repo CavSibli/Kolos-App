@@ -12,6 +12,14 @@ const STATUS_LABELS: Record<string, string> = {
   CONFIRMED: 'Confirmée',
   SELECTED: 'Sélectionné',
   COMPLETED: 'Terminée',
+  OPEN: 'Ouvert',
+  IN_REVIEW: 'En revue',
+  RESOLVED: 'Résolu',
+  REJECTED: 'Rejeté',
+  LOW: 'Priorité basse',
+  NORMAL: 'Priorité normale',
+  HIGH: 'Priorité haute',
+  CRITICAL: 'Priorité critique',
 };
 
 const STATUS_TONES: Record<string, BadgeTone> = {
@@ -26,6 +34,14 @@ const STATUS_TONES: Record<string, BadgeTone> = {
   CONFIRMED: 'success',
   SELECTED: 'success',
   COMPLETED: 'success',
+  OPEN: 'warning',
+  IN_REVIEW: 'warning',
+  RESOLVED: 'success',
+  REJECTED: 'danger',
+  LOW: 'neutral',
+  NORMAL: 'neutral',
+  HIGH: 'warning',
+  CRITICAL: 'danger',
 };
 
 export function statusLabel(status: string): string {

@@ -9,7 +9,9 @@ import { StatutSignalementOrmEntity } from '@shared/reference-data/infrastructur
 import { PrioriteSignalementOrmEntity } from '@shared/reference-data/infrastructure/typeorm/entities/priorite-signalement.orm-entity';
 import { TypeOrmReportRepository } from './infrastructure/typeorm/repositories/typeorm-report.repository';
 import { CreateReportUseCase } from './application/use-cases/create-report.use-case';
+import { ListAdminReportsUseCase } from './application/use-cases/list-admin-reports.use-case';
 import { MissionReportsController } from './presentation/http/controllers/mission-reports.controller';
+import { AdminReportsController } from './presentation/http/controllers/admin-reports.controller';
 import { REPORT_REPOSITORY } from './reports.tokens';
 
 @Module({
@@ -24,7 +26,7 @@ import { REPORT_REPOSITORY } from './reports.tokens';
     MissionsModule,
     RequestsModule,
   ],
-  controllers: [MissionReportsController],
+  controllers: [MissionReportsController, AdminReportsController],
   providers: [
     {
       provide: REPORT_REPOSITORY,
@@ -35,6 +37,7 @@ import { REPORT_REPOSITORY } from './reports.tokens';
       useExisting: REPORT_REPOSITORY,
     },
     CreateReportUseCase,
+    ListAdminReportsUseCase,
   ],
   exports: [REPORT_REPOSITORY],
 })

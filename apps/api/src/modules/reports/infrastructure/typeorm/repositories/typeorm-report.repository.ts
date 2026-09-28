@@ -1,7 +1,10 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { ReportRepository } from '../../../domain/repositories/report.repository';
+import {
+  ReportListResult,
+  ReportRepository,
+} from '../../../domain/repositories/report.repository';
 import { Report } from '../../../domain/entities/report.entity';
 import { SignalementOrmEntity } from '../entities/signalement.orm-entity';
 import { ReportOrmMapper } from '../mappers/report.orm-mapper';
@@ -21,6 +24,25 @@ export class TypeOrmReportRepository implements ReportRepository {
     @InjectRepository(PrioriteSignalementOrmEntity)
     private readonly prioriteRepo: Repository<PrioriteSignalementOrmEntity>,
   ) {}
+
+  async listForAdmin(options: {
+    page: number;
+    pageSize: number;
+  }): Promise<ReportListResult> {
+    const [entities, total] = await this.signalementRepo.findAndCount({
+      relations: ['typeSignalement', 'statutSignalement', 'prioriteSignalement'],
+      order: { dateCreation: 'DESC' },
+      skip: (options.page - 1) * options.pageSize,
+      take: options.pageSize,
+    });
+
+    return {
+      items: entities.map((entity) => ReportOrmMapper.toDomain(entity)),
+      total,
+      page: options.page,
+      pageSize: options.pageSize,
+    };
+  }
 
   async save(report: Report): Promise<Report> {
     const typeId = await this.resolveRefId(
