@@ -36,6 +36,9 @@ export function AdminUsersPage() {
 
   const reload = useCallback(async () => {
     const result = await listAdminUsers({ page: 1, pageSize: 50 });
+    // #region agent log
+    fetch('http://127.0.0.1:7922/ingest/326d00f4-1522-4d98-ad21-c5e911302b3a',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'081765'},body:JSON.stringify({sessionId:'081765',runId:'post-fix',hypothesisId:'A',location:'AdminUsersPage.tsx:reload',message:'admin users fetch ok',data:{total:result.total,itemCount:result.items.length},timestamp:Date.now()})}).catch(()=>{});
+    // #endregion
     setUsers(result.items);
     setTotal(result.total);
   }, [listAdminUsers]);

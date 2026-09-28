@@ -137,6 +137,30 @@ export class UpdateAdminRequestUseCase {
       contraintesPhysiques?: string | null;
     },
   ) {
+    // #region agent log
+    try {
+      const fs = await import('fs');
+      fs.appendFileSync(
+        'C:/Users/sibli.cav/OneDrive - Ouidou Consulting/Bureau/3WA-KOLOS/debug-081765.log',
+        `${JSON.stringify({
+          sessionId: '081765',
+          runId: 'pre-fix',
+          hypothesisId: 'H3',
+          location: 'UpdateAdminRequestUseCase.execute',
+          message: 'patch admin request entry',
+          data: {
+            id,
+            keys: Object.keys(command).filter(
+              (k) => (command as Record<string, unknown>)[k] !== undefined,
+            ),
+          },
+          timestamp: Date.now(),
+        })}\n`,
+      );
+    } catch {
+      /* ignore */
+    }
+    // #endregion
     const request = await this.requests.findById(id);
     if (!request) throw new NotFoundException('Demande introuvable');
     if (request.statusCode === 'CANCELLED') {
@@ -159,6 +183,25 @@ export class UpdateAdminRequestUseCase {
         this.clock.now(),
       ),
     );
+    // #region agent log
+    try {
+      const fs = await import('fs');
+      fs.appendFileSync(
+        'C:/Users/sibli.cav/OneDrive - Ouidou Consulting/Bureau/3WA-KOLOS/debug-081765.log',
+        `${JSON.stringify({
+          sessionId: '081765',
+          runId: 'pre-fix',
+          hypothesisId: 'H4',
+          location: 'UpdateAdminRequestUseCase.execute',
+          message: 'patch admin request saved',
+          data: { id: updated.id, titre: updated.titre, status: updated.statusCode },
+          timestamp: Date.now(),
+        })}\n`,
+      );
+    } catch {
+      /* ignore */
+    }
+    // #endregion
     return {
       id: updated.id!,
       demandeurId: updated.demandeurId,
