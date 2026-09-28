@@ -13,6 +13,7 @@ import {
   ErrorState,
   LoadingState,
 } from '../../ui';
+import { ReportMissionForm } from '../missions/ReportMissionForm';
 
 export function RequestCandidatesPage() {
   const { id } = useParams();
@@ -159,7 +160,9 @@ export function RequestCandidatesPage() {
       <p className="ds-page-lead">
         {request.mission?.status === 'AWAITING_PAYMENT'
           ? 'Une action primaire : simuler le paiement pour confirmer la mission.'
-          : 'Une action primaire : accepter un candidat pour créer la mission.'}
+          : request.mission?.status === 'CONFIRMED'
+            ? 'Une action primaire : signaler un problème sur la mission si besoin.'
+            : 'Une action primaire : accepter un candidat pour créer la mission.'}
       </p>
 
       <Card muted>
@@ -204,6 +207,22 @@ export function RequestCandidatesPage() {
         <p className="ds-form-success" role="status">
           {success}
         </p>
+      ) : null}
+
+      {request.mission?.status === 'CONFIRMED' ? (
+        <Card title="Signaler un problème">
+          <ReportMissionForm
+            missionId={request.mission.id}
+            onSuccess={(message) => {
+              setSuccess(message);
+              setError(null);
+            }}
+            onError={(message) => {
+              setError(message);
+              setSuccess(null);
+            }}
+          />
+        </Card>
       ) : null}
 
       <h2>Candidats</h2>

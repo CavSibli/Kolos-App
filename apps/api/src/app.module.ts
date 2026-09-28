@@ -13,6 +13,7 @@ import { AidantProfileModule } from './modules/aidant-profile/aidant-profile.mod
 import { RequestsModule } from './modules/requests/requests.module';
 import { ApplicationsModule } from './modules/applications/applications.module';
 import { MissionsModule } from './modules/missions/missions.module';
+import { ReportsModule } from './modules/reports/reports.module';
 import { AllExceptionsFilter } from './shared/presentation/common/filters/all-exceptions.filter';
 
 @Module({
@@ -44,6 +45,7 @@ import { AllExceptionsFilter } from './shared/presentation/common/filters/all-ex
     RequestsModule,
     ApplicationsModule,
     MissionsModule,
+    ReportsModule,
   ],
   providers: [
     {

@@ -6,6 +6,8 @@ import type {
   ApplyToRequestBody,
   AuthorizePaymentResponse,
   CandidateResponse,
+  CreateReportBody,
+  CreateReportResponse,
   DecideApplicationBody,
   DecideApplicationResponse,
   PaginatedApplicationsWithContextResponse,
@@ -100,6 +102,16 @@ export class MarketplaceClient {
   authorizePayment(missionId: number): Promise<AuthorizePaymentResponse> {
     return this.api.post<AuthorizePaymentResponse>(
       `/missions/${missionId}/payments/mock-authorize`,
+    );
+  }
+
+  createReport(
+    missionId: number,
+    body: CreateReportBody,
+  ): Promise<CreateReportResponse> {
+    return this.api.post<CreateReportResponse>(
+      `/missions/${missionId}/reports`,
+      body,
     );
   }
 }

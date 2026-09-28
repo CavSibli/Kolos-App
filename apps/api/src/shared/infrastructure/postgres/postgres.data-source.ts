@@ -14,6 +14,10 @@ import { StatutMissionOrmEntity } from '../../reference-data/infrastructure/type
 import { StatutParticipationOrmEntity } from '../../reference-data/infrastructure/typeorm/entities/statut-participation.orm-entity';
 import { MissionOrmEntity } from '../../../modules/missions/infrastructure/typeorm/entities/mission.orm-entity';
 import { ParticipationOrmEntity } from '../../../modules/missions/infrastructure/typeorm/entities/participation.orm-entity';
+import { TypeSignalementOrmEntity } from '../../reference-data/infrastructure/typeorm/entities/type-signalement.orm-entity';
+import { StatutSignalementOrmEntity } from '../../reference-data/infrastructure/typeorm/entities/statut-signalement.orm-entity';
+import { PrioriteSignalementOrmEntity } from '../../reference-data/infrastructure/typeorm/entities/priorite-signalement.orm-entity';
+import { SignalementOrmEntity } from '../../../modules/reports/infrastructure/typeorm/entities/signalement.orm-entity';
 
 const envPaths = [
   resolve(process.cwd(), '../../.env'),
@@ -43,11 +47,15 @@ const options: DataSourceOptions = {
     StatutCandidatureOrmEntity,
     StatutMissionOrmEntity,
     StatutParticipationOrmEntity,
+    TypeSignalementOrmEntity,
+    StatutSignalementOrmEntity,
+    PrioriteSignalementOrmEntity,
     ProfilAidantOrmEntity,
     DemandeOrmEntity,
     CandidatureOrmEntity,
     MissionOrmEntity,
     ParticipationOrmEntity,
+    SignalementOrmEntity,
   ],
   migrations: [__dirname + '/migrations/*{.ts,.js}'],
   synchronize: false,

@@ -252,4 +252,103 @@ describe('Marketplace (e2e)', () => {
       .set('Authorization', `Bearer ${otherToken}`)
       .expect(403);
   });
+
+  it('creates a report as mission demandeur', async () => {
+    const detail = await request(app.getHttpServer())
+      .get(`/v1/requests/${publishedRequestId}`)
+      .set('Authorization', `Bearer ${demandeurToken}`)
+      .expect(200);
+
+    const missionId = detail.body.mission.id as number;
+
+    const response = await request(app.getHttpServer())
+      .post(`/v1/missions/${missionId}/reports`)
+      .set('Authorization', `Bearer ${demandeurToken}`)
+      .send({
+        motif: 'NO_SHOW',
+        description: 'Aidant non présent au rendez-vous',
+      })
+      .expect(201);
+
+    expect(response.body.id).toBeGreaterThan(0);
+    expect(response.body.missionId).toBe(missionId);
+    expect(response.body.motif).toBe('NO_SHOW');
+    expect(response.body.status).toBe('OPEN');
+  });
+
+  it('creates a report as mission aidant', async () => {
+    const detail = await request(app.getHttpServer())
+      .get(`/v1/applications/me/${applicationId}`)
+      .set('Authorization', `Bearer ${aidantToken}`)
+      .expect(200);
+
+    const missionId = detail.body.mission.id as number;
+
+    const response = await request(app.getHttpServer())
+      .post(`/v1/missions/${missionId}/reports`)
+      .set('Authorization', `Bearer ${aidantToken}`)
+      .send({
+        motif: 'PAYMENT',
+        description: 'Problème sur le paiement simulé',
+      })
+      .expect(201);
+
+    expect(response.body.status).toBe('OPEN');
+    expect(response.body.motif).toBe('PAYMENT');
+  });
+
+  it('rejects report without auth', async () => {
+    const detail = await request(app.getHttpServer())
+      .get(`/v1/requests/${publishedRequestId}`)
+      .set('Authorization', `Bearer ${demandeurToken}`)
+      .expect(200);
+
+    const missionId = detail.body.mission.id as number;
+
+    await request(app.getHttpServer())
+      .post(`/v1/missions/${missionId}/reports`)
+      .send({ motif: 'OTHER', description: 'Sans token' })
+      .expect(401);
+  });
+
+  it('forbids report from non-participant', async () => {
+    const stranger = await request(app.getHttpServer())
+      .post('/v1/auth/register')
+      .send({
+        email: `demandeur-stranger-${suffix}@kolos.local`,
+        password: 'Password123',
+        firstName: 'Dan',
+        lastName: 'Stranger',
+        role: 'demandeur',
+      })
+      .expect(201);
+
+    const detail = await request(app.getHttpServer())
+      .get(`/v1/requests/${publishedRequestId}`)
+      .set('Authorization', `Bearer ${demandeurToken}`)
+      .expect(200);
+
+    const missionId = detail.body.mission.id as number;
+
+    await request(app.getHttpServer())
+      .post(`/v1/missions/${missionId}/reports`)
+      .set('Authorization', `Bearer ${stranger.body.accessToken}`)
+      .send({ motif: 'OTHER', description: 'Intrus' })
+      .expect(403);
+  });
+
+  it('rejects report with invalid motif', async () => {
+    const detail = await request(app.getHttpServer())
+      .get(`/v1/requests/${publishedRequestId}`)
+      .set('Authorization', `Bearer ${demandeurToken}`)
+      .expect(200);
+
+    const missionId = detail.body.mission.id as number;
+
+    await request(app.getHttpServer())
+      .post(`/v1/missions/${missionId}/reports`)
+      .set('Authorization', `Bearer ${demandeurToken}`)
+      .send({ motif: 'INVALID', description: 'Motif invalide' })
+      .expect(400);
+  });
 });
