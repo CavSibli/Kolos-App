@@ -80,8 +80,10 @@ export function ApplicationDetailPage() {
       <h1>{application.request.titre}</h1>
       <p className="ds-page-lead">
         {application.mission?.status === 'CONFIRMED'
-          ? 'Une action primaire : signaler un problème sur la mission si besoin.'
-          : 'Statuts de votre candidature, de la demande et de la mission.'}
+          ? 'Mission confirmée : messagerie et signalement sont disponibles ci-dessous.'
+          : application.mission?.status === 'AWAITING_PAYMENT'
+            ? 'En attente du paiement du demandeur : messagerie et signalement seront débloqués ensuite.'
+            : 'Statuts de votre candidature, de la demande et de la mission.'}
       </p>
 
       {formError ? (
@@ -149,16 +151,23 @@ export function ApplicationDetailPage() {
         </p>
       </Card>
 
+      {application.mission?.status === 'AWAITING_PAYMENT' ? (
+        <Card title="Messagerie & signalement">
+          <p>
+            Le demandeur doit d’abord simuler le paiement. Ensuite, ces actions
+            apparaîtront ici (statut mission « Confirmée »).
+          </p>
+        </Card>
+      ) : null}
+
       {application.mission?.status === 'CONFIRMED' ? (
         <>
           <Card title="Messagerie">
-            <p className="ds-page-lead">
-              Échangez avec le demandeur de la mission.
-            </p>
+            <p>Échangez avec le demandeur de la mission.</p>
             <div className="ds-actions">
               <Link
                 to={`/app/missions/${application.mission.id}/messages`}
-                className="ds-button"
+                className="ds-button ds-button--primary"
               >
                 Ouvrir la messagerie
               </Link>

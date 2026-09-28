@@ -78,8 +78,11 @@ export function MyApplicationsPage() {
               </span>
               {application.mission ? (
                 <span>
-                  Mission : {statusLabel(application.mission.status)} —{' '}
-                  {application.mission.montantTotal} €
+                  Mission :{' '}
+                  <Badge tone={statusTone(application.mission.status)}>
+                    {statusLabel(application.mission.status)}
+                  </Badge>{' '}
+                  — {application.mission.montantTotal} €
                 </span>
               ) : null}
               {application.participation ? (
@@ -89,12 +92,24 @@ export function MyApplicationsPage() {
                 </span>
               ) : null}
             </p>
-            <Link
-              to={`/app/applications/mine/${application.id}`}
-              className="ds-button ds-button--secondary"
-            >
-              Voir le détail
-            </Link>
+            <div className="ds-actions">
+              <Link
+                to={`/app/applications/mine/${application.id}`}
+                className="ds-button ds-button--secondary"
+              >
+                {application.mission?.status === 'CONFIRMED'
+                  ? 'Messagerie & signalement'
+                  : 'Voir le détail'}
+              </Link>
+              {application.mission?.status === 'CONFIRMED' ? (
+                <Link
+                  to={`/app/missions/${application.mission.id}/messages`}
+                  className="ds-button ds-button--primary"
+                >
+                  Ouvrir la messagerie
+                </Link>
+              ) : null}
+            </div>
           </Card>
         ))}
       </div>
