@@ -29,7 +29,7 @@ export interface AuthResponse {
   user: AuthUser;
 }
 
-export interface MeResponse extends AuthUser {}
+export type MeResponse = AuthUser;
 
 export interface UpdateProfileRequest {
   firstName?: string;

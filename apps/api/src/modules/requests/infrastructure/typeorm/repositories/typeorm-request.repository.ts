@@ -30,7 +30,7 @@ export class TypeOrmRequestRepository implements RequestRepository {
       request.statusCode,
     );
     const partial = RequestOrmMapper.toOrm(request, statutId);
-    let entity = partial.id
+    const entity = partial.id
       ? await this.demandeRepo.findOne({
           where: { id: partial.id },
           relations: ['statutDemande'],
