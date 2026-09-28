@@ -12,7 +12,7 @@
     "typeorm:migrate": "typeorm-ts-node-commonjs migration:run -d src/shared/infrastructure/postgres/postgres.data-source.ts",
     "typeorm:migrate:revert": "typeorm-ts-node-commonjs migration:revert -d src/shared/infrastructure/postgres/postgres.data-source.ts",
     "seed:postgres": "ts-node -r tsconfig-paths/register src/shared/infrastructure/postgres/seeds/seed-admin-user.ts",
-    "seed:mongo": "ts-node -r tsconfig-paths/register src/shared/infrastructure/mongo/seeds/seed-messages.ts"
+    "seed:mongo": "ts-node -r tsconfig-paths/register src/shared/infrastructure/mongo/seeds/seed-messages.ts && ts-node -r tsconfig-paths/register src/shared/infrastructure/mongo/seeds/seed-moderation-actions.ts"
   },
   "dependencies": {
     "@kolos/shared-types": "workspace:*",
