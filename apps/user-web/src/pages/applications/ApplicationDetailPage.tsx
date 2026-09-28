@@ -60,7 +60,7 @@ export function ApplicationDetailPage() {
     return (
       <div className="container">
         <p className="error">{error ?? 'Candidature introuvable'}</p>
-        <Link to="/applications/mine">Retour à mes candidatures</Link>
+        <Link to="/app/applications/mine">Retour à mes candidatures</Link>
       </div>
     );
   }
@@ -112,7 +112,7 @@ export function ApplicationDetailPage() {
         ) : null}
       </div>
       <p>
-        <Link to="/applications/mine">Retour à mes candidatures</Link>
+        <Link to="/app/applications/mine">Retour à mes candidatures</Link>
       </p>
     </div>
   );

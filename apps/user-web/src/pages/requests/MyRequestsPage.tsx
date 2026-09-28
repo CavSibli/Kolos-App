@@ -65,7 +65,7 @@ export function MyRequestsPage() {
                 <strong>Mission :</strong> {statusLabel(request.mission.status)}
               </p>
             ) : null}
-            <Link to={`/requests/mine/${request.id}`}>Gérer les candidats</Link>
+            <Link to={`/app/requests/mine/${request.id}`}>Gérer les candidats</Link>
           </article>
         ))}
       </div>
@@ -75,7 +75,7 @@ export function MyRequestsPage() {
       ) : null}
 
       <p>
-        <Link to="/requests/new">Publier une nouvelle demande</Link>
+        <Link to="/app/requests/new">Publier une nouvelle demande</Link>
       </p>
       <p>
         <Link to="/app">Retour à l&apos;accueil</Link>

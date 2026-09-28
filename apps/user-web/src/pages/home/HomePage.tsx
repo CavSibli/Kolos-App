@@ -134,23 +134,23 @@ export function HomePage() {
           {isAidant ? (
             <>
               <li>
-                <Link to="/profile/aidant">Compléter mon profil aidant</Link>
+                <Link to="/app/profile/aidant">Compléter mon profil aidant</Link>
               </li>
               <li>
-                <Link to="/requests">Voir les demandes disponibles</Link>
+                <Link to="/app/requests">Voir les demandes disponibles</Link>
               </li>
               <li>
-                <Link to="/applications/mine">Mes candidatures</Link>
+                <Link to="/app/applications/mine">Mes candidatures</Link>
               </li>
             </>
           ) : null}
           {isDemandeur ? (
             <>
               <li>
-                <Link to="/requests/new">Publier une demande</Link>
+                <Link to="/app/requests/new">Publier une demande</Link>
               </li>
               <li>
-                <Link to="/requests/mine">Mes demandes</Link>
+                <Link to="/app/requests/mine">Mes demandes</Link>
               </li>
             </>
           ) : null}
@@ -161,7 +161,7 @@ export function HomePage() {
         <section className="dashboard-section">
           <div className="dashboard-section-header">
             <h2>Mes dernières candidatures</h2>
-            <Link to="/applications/mine">Tout voir</Link>
+            <Link to="/app/applications/mine">Tout voir</Link>
           </div>
           {applicationsLoading ? <p>Chargement...</p> : null}
           {applicationsError ? (
@@ -172,7 +172,7 @@ export function HomePage() {
           applications.length === 0 ? (
             <p>
               Aucune candidature pour le moment.{' '}
-              <Link to="/requests">Candidater à une demande</Link>
+              <Link to="/app/requests">Candidater à une demande</Link>
             </p>
           ) : null}
           <div className="card-list">
@@ -195,7 +195,7 @@ export function HomePage() {
                     {statusLabel(application.mission.status)}
                   </p>
                 ) : null}
-                <Link to={`/applications/mine/${application.id}`}>
+                <Link to={`/app/applications/mine/${application.id}`}>
                   Voir le détail
                 </Link>
               </article>
@@ -208,14 +208,14 @@ export function HomePage() {
         <section className="dashboard-section">
           <div className="dashboard-section-header">
             <h2>Mes dernières demandes</h2>
-            <Link to="/requests/mine">Tout voir</Link>
+            <Link to="/app/requests/mine">Tout voir</Link>
           </div>
           {requestsLoading ? <p>Chargement...</p> : null}
           {requestsError ? <p className="error">{requestsError}</p> : null}
           {!requestsLoading && !requestsError && requests.length === 0 ? (
             <p>
               Aucune demande publiée.{' '}
-              <Link to="/requests/new">Publier une demande</Link>
+              <Link to="/app/requests/new">Publier une demande</Link>
             </p>
           ) : null}
           <div className="card-list">
@@ -240,7 +240,7 @@ export function HomePage() {
                     {statusLabel(request.mission.status)}
                   </p>
                 ) : null}
-                <Link to={`/requests/mine/${request.id}`}>
+                <Link to={`/app/requests/mine/${request.id}`}>
                   Gérer les candidats
                 </Link>
               </article>

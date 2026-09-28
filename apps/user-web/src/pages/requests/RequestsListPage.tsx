@@ -190,7 +190,7 @@ export function RequestsListPage() {
       ) : null}
 
       <p>
-        <Link to="/applications/mine">Voir mes candidatures</Link>
+        <Link to="/app/applications/mine">Voir mes candidatures</Link>
       </p>
       <p>
         <Link to="/app">Retour à l&apos;accueil</Link>

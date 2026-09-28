@@ -1,12 +1,14 @@
 import { FormEvent, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { ApiClientError } from '@kolos/http-client';
 import { useAuth } from '../../app/providers/AuthProvider';
+import { safeNext } from '../../app/routing/safeNext';
 import { Button, TextField } from '../../ui';
 
 export function LoginPage() {
   const { login } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -19,7 +21,7 @@ export function LoginPage() {
 
     try {
       await login({ email, password });
-      navigate('/app');
+      navigate(safeNext(searchParams.get('next')));
     } catch (err) {
       if (err instanceof ApiClientError) {
         setError(

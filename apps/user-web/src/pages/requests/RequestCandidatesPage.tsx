@@ -95,7 +95,7 @@ export function RequestCandidatesPage() {
     return (
       <div className="container">
         <p className="error">{error ?? 'Demande introuvable'}</p>
-        <Link to="/requests/mine">Retour à mes demandes</Link>
+        <Link to="/app/requests/mine">Retour à mes demandes</Link>
       </div>
     );
   }
@@ -172,7 +172,7 @@ export function RequestCandidatesPage() {
       {candidates.length === 0 ? <p>Aucun candidat pour cette demande.</p> : null}
 
       <p>
-        <Link to="/requests/mine">Retour à mes demandes</Link>
+        <Link to="/app/requests/mine">Retour à mes demandes</Link>
       </p>
     </div>
   );

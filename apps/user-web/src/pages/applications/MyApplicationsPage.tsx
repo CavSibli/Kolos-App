@@ -82,7 +82,7 @@ export function MyApplicationsPage() {
                 {statusLabel(application.participation.status)}
               </p>
             ) : null}
-            <Link to={`/applications/mine/${application.id}`}>Voir le détail</Link>
+            <Link to={`/app/applications/mine/${application.id}`}>Voir le détail</Link>
           </article>
         ))}
       </div>

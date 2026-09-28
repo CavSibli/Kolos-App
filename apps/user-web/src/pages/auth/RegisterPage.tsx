@@ -1,11 +1,13 @@
 import { FormEvent, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { ApiClientError } from '@kolos/http-client';
 import { useAuth } from '../../app/providers/AuthProvider';
+import { safeNext } from '../../app/routing/safeNext';
 
 export function RegisterPage() {
   const { register } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [form, setForm] = useState({
     email: '',
     password: '',
@@ -23,7 +25,7 @@ export function RegisterPage() {
 
     try {
       await register(form);
-      navigate('/app');
+      navigate(safeNext(searchParams.get('next')));
     } catch (err) {
       if (err instanceof ApiClientError) {
         if (err.statusCode === 409) {
