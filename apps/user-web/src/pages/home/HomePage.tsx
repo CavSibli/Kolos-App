@@ -8,33 +8,16 @@ import type {
 import { useAuth } from '../../app/providers/AuthProvider';
 import { useMarketplace } from '../../app/hooks/useMarketplace';
 import { PageMeta } from '../../app/seo/PageMeta';
+import { formatDate, statusLabel, statusTone } from '../../lib/status';
+import {
+  Badge,
+  Card,
+  EmptyState,
+  ErrorState,
+  LoadingState,
+} from '../../ui';
 
 const PREVIEW_SIZE = 5;
-
-function statusLabel(status: string): string {
-  const labels: Record<string, string> = {
-    PENDING: 'En attente',
-    ACCEPTED: 'Acceptée',
-    REFUSED: 'Refusée',
-    WITHDRAWN: 'Retirée',
-    PUBLISHED: 'Publiée',
-    PARTIALLY_ASSIGNED: 'Partiellement assignée',
-    ASSIGNED: 'Assignée',
-    AWAITING_PAYMENT: 'En attente de paiement',
-    CONFIRMED: 'Confirmée',
-    SELECTED: 'Sélectionné',
-    COMPLETED: 'Terminée',
-  };
-  return labels[status] ?? status;
-}
-
-function formatDate(value: string): string {
-  return new Date(value).toLocaleDateString('fr-FR', {
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric',
-  });
-}
 
 function errorMessage(err: unknown, fallback: string): string {
   if (err instanceof ApiClientError && typeof err.body.message === 'string') {
@@ -108,6 +91,12 @@ export function HomePage() {
     void loadRequests();
   }, [isDemandeur, listMyRequests]);
 
+  const primaryAction = isDemandeur
+    ? { to: '/app/requests/new', label: 'Publier une demande' }
+    : isAidant
+      ? { to: '/app/requests', label: 'Voir les demandes' }
+      : null;
+
   return (
     <div className="container dashboard">
       <PageMeta
@@ -117,141 +106,139 @@ export function HomePage() {
         noIndex
       />
       <h1>Tableau de bord</h1>
-      <div className="card">
-        <p>
-          <strong>Email :</strong> {user?.email}
+      <p className="ds-page-lead">
+        Bonjour {user?.firstName} — voici l&apos;essentiel de votre activité.
+      </p>
+
+      <Card muted className="ds-stack">
+        <p className="ds-meta">
+          <strong>{user?.firstName} {user?.lastName}</strong>
+          <span>{user?.email}</span>
+          <span>Rôles : {user?.roles.join(', ')}</span>
         </p>
-        <p>
-          <strong>Nom :</strong> {user?.firstName} {user?.lastName}
-        </p>
-        <p>
-          <strong>Rôles :</strong> {user?.roles.join(', ')}
-        </p>
-      </div>
-      <nav className="card">
-        <h2>Actions</h2>
-        <ul>
-          {isAidant ? (
-            <>
-              <li>
-                <Link to="/app/profile/aidant">Compléter mon profil aidant</Link>
-              </li>
-              <li>
-                <Link to="/app/requests">Voir les demandes disponibles</Link>
-              </li>
-              <li>
-                <Link to="/app/applications/mine">Mes candidatures</Link>
-              </li>
-            </>
-          ) : null}
-          {isDemandeur ? (
-            <>
-              <li>
-                <Link to="/app/requests/new">Publier une demande</Link>
-              </li>
-              <li>
-                <Link to="/app/requests/mine">Mes demandes</Link>
-              </li>
-            </>
-          ) : null}
-        </ul>
-      </nav>
+        {primaryAction ? (
+          <Link
+            to={primaryAction.to}
+            className="ds-button ds-button--primary ds-button--block"
+          >
+            {primaryAction.label}
+          </Link>
+        ) : null}
+      </Card>
 
       {isAidant ? (
-        <section className="dashboard-section">
+        <section className="dashboard-section" aria-labelledby="dash-apps">
           <div className="dashboard-section-header">
-            <h2>Mes dernières candidatures</h2>
+            <h2 id="dash-apps">Mes dernières candidatures</h2>
             <Link to="/app/applications/mine">Tout voir</Link>
           </div>
-          {applicationsLoading ? <p>Chargement...</p> : null}
+          {applicationsLoading ? <LoadingState /> : null}
           {applicationsError ? (
-            <p className="error">{applicationsError}</p>
+            <ErrorState message={applicationsError} />
           ) : null}
           {!applicationsLoading &&
           !applicationsError &&
           applications.length === 0 ? (
-            <p>
-              Aucune candidature pour le moment.{' '}
-              <Link to="/app/requests">Candidater à une demande</Link>
-            </p>
+            <EmptyState
+              title="Aucune candidature"
+              body="Parcourez les demandes disponibles pour candidater."
+              action={
+                <Link
+                  to="/app/requests"
+                  className="ds-button ds-button--secondary"
+                >
+                  Voir les demandes
+                </Link>
+              }
+            />
           ) : null}
           <div className="card-list">
             {applications.map((application) => (
-              <article key={application.id} className="card compact">
-                <h3>{application.request.titre}</h3>
+              <Card key={application.id} as="article" title={application.request.titre}>
                 <p>
-                  <span
-                    className={`badge badge-${application.status.toLowerCase()}`}
-                  >
+                  <Badge tone={statusTone(application.status)}>
                     {statusLabel(application.status)}
-                  </span>
+                  </Badge>
                 </p>
-                <p>
-                  <strong>Date :</strong> {formatDate(application.createdAt)}
+                <p className="ds-meta">
+                  <span>Date : {formatDate(application.createdAt)}</span>
+                  {application.mission ? (
+                    <span>
+                      Mission : {statusLabel(application.mission.status)}
+                    </span>
+                  ) : null}
                 </p>
-                {application.mission ? (
-                  <p>
-                    <strong>Mission :</strong>{' '}
-                    {statusLabel(application.mission.status)}
-                  </p>
-                ) : null}
-                <Link to={`/app/applications/mine/${application.id}`}>
+                <Link
+                  to={`/app/applications/mine/${application.id}`}
+                  className="ds-text-link"
+                >
                   Voir le détail
                 </Link>
-              </article>
+              </Card>
             ))}
           </div>
         </section>
       ) : null}
 
       {isDemandeur ? (
-        <section className="dashboard-section">
+        <section className="dashboard-section" aria-labelledby="dash-reqs">
           <div className="dashboard-section-header">
-            <h2>Mes dernières demandes</h2>
+            <h2 id="dash-reqs">Mes dernières demandes</h2>
             <Link to="/app/requests/mine">Tout voir</Link>
           </div>
-          {requestsLoading ? <p>Chargement...</p> : null}
-          {requestsError ? <p className="error">{requestsError}</p> : null}
+          {requestsLoading ? <LoadingState /> : null}
+          {requestsError ? <ErrorState message={requestsError} /> : null}
           {!requestsLoading && !requestsError && requests.length === 0 ? (
-            <p>
-              Aucune demande publiée.{' '}
-              <Link to="/app/requests/new">Publier une demande</Link>
-            </p>
+            <EmptyState
+              title="Aucune demande publiée"
+              body="Publiez une mission pour recevoir des candidatures."
+              action={
+                <Link
+                  to="/app/requests/new"
+                  className="ds-button ds-button--secondary"
+                >
+                  Publier une demande
+                </Link>
+              }
+            />
           ) : null}
           <div className="card-list">
             {requests.map((request) => (
-              <article key={request.id} className="card compact">
-                <h3>{request.titre}</h3>
+              <Card key={request.id} as="article" title={request.titre}>
                 <p>
-                  <span className={`badge badge-${request.status.toLowerCase()}`}>
+                  <Badge tone={statusTone(request.status)}>
                     {statusLabel(request.status)}
+                  </Badge>
+                </p>
+                <p className="ds-meta">
+                  <span>Date : {formatDate(request.createdAt)}</span>
+                  <span>
+                    Candidatures : {request.pendingApplications} en attente,{' '}
+                    {request.acceptedApplications} acceptée(s)
                   </span>
+                  {request.mission ? (
+                    <span>
+                      Mission : {statusLabel(request.mission.status)}
+                    </span>
+                  ) : null}
                 </p>
-                <p>
-                  <strong>Date :</strong> {formatDate(request.createdAt)}
-                </p>
-                <p>
-                  <strong>Candidatures :</strong> {request.pendingApplications}{' '}
-                  en attente, {request.acceptedApplications} acceptée(s)
-                </p>
-                {request.mission ? (
-                  <p>
-                    <strong>Mission :</strong>{' '}
-                    {statusLabel(request.mission.status)}
-                  </p>
-                ) : null}
-                <Link to={`/app/requests/mine/${request.id}`}>
+                <Link
+                  to={`/app/requests/mine/${request.id}`}
+                  className="ds-text-link"
+                >
                   Gérer les candidats
                 </Link>
-              </article>
+              </Card>
             ))}
           </div>
         </section>
       ) : null}
 
-      <p>
-        <Link to="/register">Créer un autre compte</Link>
-      </p>
+      {isAidant && !isDemandeur ? (
+        <p className="ds-page-footer">
+          <Link to="/app/profile/aidant">Compléter mon profil aidant</Link>
+        </p>
+      ) : null}
     </div>
   );
 }

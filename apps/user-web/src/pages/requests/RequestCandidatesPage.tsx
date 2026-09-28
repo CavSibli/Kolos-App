@@ -3,15 +3,16 @@ import { Link, useParams } from 'react-router-dom';
 import { ApiClientError } from '@kolos/http-client';
 import type { CandidateResponse, RequestWithStatsResponse } from '@kolos/shared-types';
 import { useMarketplace } from '../../app/hooks/useMarketplace';
-
-function statusLabel(status: string): string {
-  const labels: Record<string, string> = {
-    PENDING: 'En attente',
-    ACCEPTED: 'Acceptée',
-    REFUSED: 'Refusée',
-  };
-  return labels[status] ?? status;
-}
+import { PageMeta } from '../../app/seo/PageMeta';
+import { statusLabel, statusTone } from '../../lib/status';
+import {
+  Badge,
+  Button,
+  Card,
+  EmptyState,
+  ErrorState,
+  LoadingState,
+} from '../../ui';
 
 export function RequestCandidatesPage() {
   const { id } = useParams();
@@ -88,64 +89,105 @@ export function RequestCandidatesPage() {
   }
 
   if (isLoading) {
-    return <div className="container">Chargement...</div>;
+    return (
+      <div className="container">
+        <LoadingState />
+      </div>
+    );
   }
 
   if (!request) {
     return (
       <div className="container">
-        <p className="error">{error ?? 'Demande introuvable'}</p>
-        <Link to="/app/requests/mine">Retour à mes demandes</Link>
+        <ErrorState
+          message={error ?? 'Demande introuvable'}
+          action={
+            <Link
+              to="/app/requests/mine"
+              className="ds-button ds-button--secondary"
+            >
+              Retour à mes demandes
+            </Link>
+          }
+        />
       </div>
     );
   }
 
   return (
     <div className="container">
+      <PageMeta
+        title={`Candidats — ${request.titre}`}
+        description="Acceptez ou refusez les candidatures pour cette demande."
+        path={`/app/requests/mine/${id ?? ''}`}
+        noIndex
+      />
       <h1>{request.titre}</h1>
-      <div className="card">
-        <p>{request.description}</p>
-        <p>
-          <strong>Statut :</strong> {request.status}
-        </p>
-        <p>
-          <strong>Candidatures :</strong> {request.pendingApplications} en
-          attente / {request.acceptedApplications} acceptée(s)
-        </p>
-        {request.mission ? (
-          <p>
-            <strong>Mission :</strong> {request.mission.status} —{' '}
-            {request.mission.montantTotal} €
-          </p>
-        ) : null}
-      </div>
+      <p className="ds-page-lead">
+        Une action primaire : accepter un candidat pour créer la mission.
+      </p>
 
-      {error ? <p className="error">{error}</p> : null}
-      {success ? <p className="success">{success}</p> : null}
+      <Card muted>
+        <p>{request.description}</p>
+        <p className="ds-meta">
+          <span>
+            Statut :{' '}
+            <Badge tone={statusTone(request.status)}>
+              {statusLabel(request.status)}
+            </Badge>
+          </span>
+          <span>
+            Candidatures : {request.pendingApplications} en attente /{' '}
+            {request.acceptedApplications} acceptée(s)
+          </span>
+          {request.mission ? (
+            <span>
+              Mission : {statusLabel(request.mission.status)} —{' '}
+              {request.mission.montantTotal} €
+            </span>
+          ) : null}
+        </p>
+      </Card>
+
+      {error ? (
+        <p className="ds-form-error" role="alert">
+          {error}
+        </p>
+      ) : null}
+      {success ? (
+        <p className="ds-form-success" role="status">
+          {success}
+        </p>
+      ) : null}
 
       <h2>Candidats</h2>
       <div className="card-list">
         {candidates.map((candidate) => (
-          <article key={candidate.applicationId} className="card">
-            <h3>
-              {candidate.aidant.firstName} {candidate.aidant.lastName}
-            </h3>
+          <Card
+            key={candidate.applicationId}
+            as="article"
+            title={`${candidate.aidant.firstName} ${candidate.aidant.lastName}`}
+          >
             <p>
-              <span className={`badge badge-${candidate.status.toLowerCase()}`}>
+              <Badge tone={statusTone(candidate.status)}>
                 {statusLabel(candidate.status)}
-              </span>
+              </Badge>
             </p>
             {candidate.aidant.bio ? <p>{candidate.aidant.bio}</p> : null}
-            {candidate.aidant.rayonIntervention ? (
-              <p>Rayon : {candidate.aidant.rayonIntervention} km</p>
-            ) : null}
-            {candidate.message ? <p>Message : {candidate.message}</p> : null}
-            {candidate.prixPropose !== null ? (
-              <p>Prix proposé : {candidate.prixPropose} €</p>
-            ) : null}
+            <p className="ds-meta">
+              {candidate.aidant.rayonIntervention ? (
+                <span>Rayon : {candidate.aidant.rayonIntervention} km</span>
+              ) : null}
+              {candidate.message ? (
+                <span>Message : {candidate.message}</span>
+              ) : null}
+              {candidate.prixPropose !== null ? (
+                <span>Prix proposé : {candidate.prixPropose} €</span>
+              ) : null}
+            </p>
             {candidate.status === 'PENDING' ? (
-              <div className="actions">
-                <button
+              <div className="ds-actions">
+                <Button
                   type="button"
                   disabled={processingId === candidate.applicationId}
                   onClick={() =>
@@ -153,25 +195,31 @@ export function RequestCandidatesPage() {
                   }
                 >
                   Accepter
-                </button>
-                <button
+                </Button>
+                <Button
                   type="button"
+                  variant="danger"
                   disabled={processingId === candidate.applicationId}
                   onClick={() =>
                     void handleDecision(candidate.applicationId, 'REFUSED')
                   }
                 >
                   Refuser
-                </button>
+                </Button>
               </div>
             ) : null}
-          </article>
+          </Card>
         ))}
       </div>
 
-      {candidates.length === 0 ? <p>Aucun candidat pour cette demande.</p> : null}
+      {candidates.length === 0 ? (
+        <EmptyState
+          title="Aucun candidat"
+          body="Les aidants apparaîtront ici dès qu’ils candidatent."
+        />
+      ) : null}
 
-      <p>
+      <p className="ds-page-footer">
         <Link to="/app/requests/mine">Retour à mes demandes</Link>
       </p>
     </div>

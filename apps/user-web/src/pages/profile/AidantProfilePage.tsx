@@ -2,6 +2,8 @@ import { FormEvent, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ApiClientError } from '@kolos/http-client';
 import { useMarketplace } from '../../app/hooks/useMarketplace';
+import { PageMeta } from '../../app/seo/PageMeta';
+import { Button, TextArea, TextField } from '../../ui';
 
 export function AidantProfilePage() {
   const { upsertAidantProfile } = useMarketplace();
@@ -36,40 +38,56 @@ export function AidantProfilePage() {
 
   return (
     <div className="container">
+      <PageMeta
+        title="Profil aidant"
+        description="Complétez votre bio et votre rayon d’intervention."
+        path="/app/profile/aidant"
+        noIndex
+      />
       <h1>Mon profil aidant</h1>
-      <form onSubmit={handleSubmit}>
-        <label>
-          Bio
-          <textarea
-            value={form.bio}
-            onChange={(event) =>
-              setForm((current) => ({ ...current, bio: event.target.value }))
-            }
-            rows={4}
-          />
-        </label>
-        <label>
-          Rayon d&apos;intervention (km)
-          <input
-            type="number"
-            min={1}
-            value={form.rayonIntervention}
-            onChange={(event) =>
-              setForm((current) => ({
-                ...current,
-                rayonIntervention: Number(event.target.value),
-              }))
-            }
-            required
-          />
-        </label>
-        {error ? <p className="error">{error}</p> : null}
-        {message ? <p className="success">{message}</p> : null}
-        <button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? 'Enregistrement...' : 'Enregistrer'}
-        </button>
+      <p className="ds-page-lead">
+        Présentez-vous aux demandeurs pour candidater en confiance.
+      </p>
+      <form onSubmit={handleSubmit} noValidate>
+        <TextArea
+          id="aidant-bio"
+          label="Bio"
+          value={form.bio}
+          onChange={(event) =>
+            setForm((current) => ({ ...current, bio: event.target.value }))
+          }
+          rows={4}
+          hint="Quelques lignes sur votre expérience"
+        />
+        <TextField
+          id="aidant-rayon"
+          label="Rayon d'intervention (km)"
+          type="number"
+          min={1}
+          value={form.rayonIntervention}
+          onChange={(event) =>
+            setForm((current) => ({
+              ...current,
+              rayonIntervention: Number(event.target.value),
+            }))
+          }
+          required
+        />
+        {error ? (
+          <p className="ds-form-error" role="alert">
+            {error}
+          </p>
+        ) : null}
+        {message ? (
+          <p className="ds-form-success" role="status">
+            {message}
+          </p>
+        ) : null}
+        <Button type="submit" block disabled={isSubmitting}>
+          {isSubmitting ? 'Enregistrement…' : 'Enregistrer'}
+        </Button>
       </form>
-      <p>
+      <p className="ds-page-footer">
         <Link to="/app">Retour à l&apos;accueil</Link>
       </p>
     </div>

@@ -3,16 +3,15 @@ import { Link } from 'react-router-dom';
 import { ApiClientError } from '@kolos/http-client';
 import type { RequestWithStatsResponse } from '@kolos/shared-types';
 import { useMarketplace } from '../../app/hooks/useMarketplace';
-
-function statusLabel(status: string): string {
-  const labels: Record<string, string> = {
-    PUBLISHED: 'Publiée',
-    PARTIALLY_ASSIGNED: 'Partiellement assignée',
-    ASSIGNED: 'Assignée',
-    AWAITING_PAYMENT: 'En attente de paiement',
-  };
-  return labels[status] ?? status;
-}
+import { PageMeta } from '../../app/seo/PageMeta';
+import { statusLabel, statusTone } from '../../lib/status';
+import {
+  Badge,
+  Card,
+  EmptyState,
+  ErrorState,
+  LoadingState,
+} from '../../ui';
 
 export function MyRequestsPage() {
   const { listMyRequests } = useMarketplace();
@@ -43,41 +42,67 @@ export function MyRequestsPage() {
 
   return (
     <div className="container">
+      <PageMeta
+        title="Mes demandes"
+        description="Suivez vos demandes publiées et les candidatures reçues."
+        path="/app/requests/mine"
+        noIndex
+      />
       <h1>Mes demandes</h1>
-      {isLoading ? <p>Chargement...</p> : null}
-      {error ? <p className="error">{error}</p> : null}
+      <p className="ds-page-lead">
+        Gérez les candidatures pour chaque mission publiée.
+      </p>
+
+      {isLoading ? <LoadingState /> : null}
+      {error ? <ErrorState message={error} /> : null}
 
       <div className="card-list">
         {requests.map((request) => (
-          <article key={request.id} className="card">
-            <h2>{request.titre}</h2>
+          <Card key={request.id} as="article" title={request.titre}>
             <p>
-              <span className={`badge badge-${request.status.toLowerCase()}`}>
+              <Badge tone={statusTone(request.status)}>
                 {statusLabel(request.status)}
+              </Badge>
+            </p>
+            <p className="ds-meta">
+              <span>
+                Candidatures : {request.pendingApplications} en attente,{' '}
+                {request.acceptedApplications} acceptée(s)
               </span>
+              {request.mission ? (
+                <span>
+                  Mission : {statusLabel(request.mission.status)}
+                </span>
+              ) : null}
             </p>
-            <p>
-              <strong>Candidatures :</strong> {request.pendingApplications} en
-              attente, {request.acceptedApplications} acceptée(s)
-            </p>
-            {request.mission ? (
-              <p>
-                <strong>Mission :</strong> {statusLabel(request.mission.status)}
-              </p>
-            ) : null}
-            <Link to={`/app/requests/mine/${request.id}`}>Gérer les candidats</Link>
-          </article>
+            <Link
+              to={`/app/requests/mine/${request.id}`}
+              className="ds-button ds-button--secondary"
+            >
+              Gérer les candidats
+            </Link>
+          </Card>
         ))}
       </div>
 
-      {!isLoading && requests.length === 0 ? (
-        <p>Aucune demande publiée.</p>
+      {!isLoading && !error && requests.length === 0 ? (
+        <EmptyState
+          title="Aucune demande publiée"
+          body="Publiez une mission pour recevoir des candidatures."
+          action={
+            <Link
+              to="/app/requests/new"
+              className="ds-button ds-button--primary"
+            >
+              Publier une demande
+            </Link>
+          }
+        />
       ) : null}
 
-      <p>
+      <p className="ds-page-footer">
         <Link to="/app/requests/new">Publier une nouvelle demande</Link>
-      </p>
-      <p>
+        {' · '}
         <Link to="/app">Retour à l&apos;accueil</Link>
       </p>
     </div>
