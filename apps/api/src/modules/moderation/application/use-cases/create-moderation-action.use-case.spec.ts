@@ -89,4 +89,58 @@ describe('CreateModerationActionUseCase', () => {
       }),
     ).rejects.toBeInstanceOf(BadRequestException);
   });
+
+  it('creates MASK action with null reason when blank', async () => {
+    moderationActionRepository.insert.mockResolvedValue({
+      id: 'mod-mask',
+      reportId: 3,
+      adminId: 'admin-1',
+      action: 'MASK',
+      reason: null,
+      payload: { target: 'public_feed' },
+      createdAt: now,
+    });
+
+    const result = await useCase.execute({
+      reportId: 3,
+      adminId: 'admin-1',
+      action: 'mask',
+      reason: '   ',
+      payload: { target: 'public_feed' },
+    });
+
+    expect(moderationActionRepository.insert).toHaveBeenCalledWith({
+      reportId: 3,
+      adminId: 'admin-1',
+      action: 'MASK',
+      reason: null,
+      payload: { target: 'public_feed' },
+      createdAt: now,
+    });
+    expect(result.action).toBe('MASK');
+    expect(result.reason).toBeNull();
+  });
+
+  it('creates DISMISS action', async () => {
+    moderationActionRepository.insert.mockResolvedValue({
+      id: 'mod-dismiss',
+      reportId: 9,
+      adminId: 'admin-1',
+      action: 'DISMISS',
+      reason: 'Hors périmètre',
+      payload: null,
+      createdAt: now,
+    });
+
+    const result = await useCase.execute({
+      reportId: 9,
+      adminId: 'admin-1',
+      action: 'DISMISS',
+      reason: 'Hors périmètre',
+    });
+
+    expect(result.action).toBe('DISMISS');
+    expect(result.reason).toBe('Hors périmètre');
+  });
 });
+

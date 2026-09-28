@@ -144,4 +144,32 @@ describe('PostMessageUseCase', () => {
       }),
     ).rejects.toBeInstanceOf(ForbiddenException);
   });
+
+  it('posts as admin with asAdmin bypass', async () => {
+    authorEnricher.enrichOne.mockImplementation(async (message) => ({
+      id: message.id,
+      conversationId: message.conversationId,
+      missionId: message.missionId,
+      userId: message.userId,
+      authorFirstName: 'Admin',
+      authorLastName: 'Kolos',
+      authorDisplayName: 'Admin Kolos',
+      body: message.body,
+      createdAt: message.createdAt.toISOString(),
+    }));
+
+    const result = await useCase.execute({
+      missionId: 5,
+      userId: 'admin-1',
+      body: 'Message modération',
+      asAdmin: true,
+    });
+
+    expect(access.assertParticipant).toHaveBeenCalledWith(5, 'admin-1', {
+      asAdmin: true,
+    });
+    expect(result.authorDisplayName).toBe('Admin Kolos');
+    expect(result.body).toBe('Message modération');
+  });
 });
+
