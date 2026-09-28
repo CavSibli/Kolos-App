@@ -43,10 +43,45 @@ export class TypeOrmRequestRepository implements RequestRepository {
       const saved = await this.demandeRepo.save(created);
       savedId = saved.id;
     } else {
+      // Persist all mutable fields (status-only update broke admin PATCH / withDetails).
       await this.demandeRepo.update(entity.id, {
         statutDemandeId: partial.statutDemandeId,
+        titre: partial.titre,
+        description: partial.description,
+        contraintesPhysiques: partial.contraintesPhysiques,
+        adresse: partial.adresse,
+        latitude: partial.latitude,
+        longitude: partial.longitude,
+        dateMission: partial.dateMission,
+        dureeEstimee: partial.dureeEstimee,
+        nbAidantsRequis: partial.nbAidantsRequis,
+        budgetEstime: partial.budgetEstime,
         dateMaj: partial.dateMaj,
       });
+      // #region agent log
+      try {
+        const fs = await import('fs');
+        fs.appendFileSync(
+          'C:/Users/sibli.cav/OneDrive - Ouidou Consulting/Bureau/3WA-KOLOS/debug-081765.log',
+          `${JSON.stringify({
+            sessionId: '081765',
+            runId: 'post-fix',
+            hypothesisId: 'H6',
+            location: 'TypeOrmRequestRepository.save',
+            message: 'demande update with full fields',
+            data: {
+              id: entity.id,
+              titre: partial.titre,
+              descriptionLen: partial.description?.length ?? 0,
+              adresseLen: partial.adresse?.length ?? 0,
+            },
+            timestamp: Date.now(),
+          })}\n`,
+        );
+      } catch {
+        /* ignore */
+      }
+      // #endregion
       savedId = entity.id;
     }
 

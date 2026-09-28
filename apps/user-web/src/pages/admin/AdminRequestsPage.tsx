@@ -38,14 +38,28 @@ export function AdminRequestsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [busyId, setBusyId] = useState<number | null>(null);
   const [form, setForm] = useState(emptyForm);
-  const [editTitre, setEditTitre] = useState<Record<number, string>>({});
+  const [editDrafts, setEditDrafts] = useState<
+    Record<
+      number,
+      { titre: string; description: string; adresse: string }
+    >
+  >({});
 
   const reload = useCallback(async () => {
     const result = await listAdminRequests({ page: 1, pageSize: 50 });
     setItems(result.items);
     setTotal(result.total);
-    setEditTitre(
-      Object.fromEntries(result.items.map((item) => [item.id, item.titre])),
+    setEditDrafts(
+      Object.fromEntries(
+        result.items.map((item) => [
+          item.id,
+          {
+            titre: item.titre,
+            description: item.description,
+            adresse: item.adresse,
+          },
+        ]),
+      ),
     );
   }, [listAdminRequests]);
 
@@ -96,16 +110,28 @@ export function AdminRequestsPage() {
     }
   }
 
-  async function onSaveTitre(id: number) {
-    const titre = editTitre[id]?.trim();
-    if (!titre) return;
+  async function onSave(id: number) {
+    const draft = editDrafts[id];
+    const titre = draft?.titre?.trim() ?? '';
+    const description = draft?.description?.trim() ?? '';
+    const adresse = draft?.adresse?.trim() ?? '';
+    // #region agent log
+    fetch('http://127.0.0.1:7922/ingest/326d00f4-1522-4d98-ad21-c5e911302b3a',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'081765'},body:JSON.stringify({sessionId:'081765',runId:'post-fix',hypothesisId:'H1',location:'AdminRequestsPage.tsx:onSave',message:'save request clicked',data:{id,titreLen:titre.length,descriptionLen:description.length,adresseLen:adresse.length},timestamp:Date.now()})}).catch(()=>{});
+    // #endregion
+    if (!titre || !description || !adresse) return;
     setBusyId(id);
     setError(null);
     try {
-      await updateAdminRequest(id, { titre });
+      await updateAdminRequest(id, { titre, description, adresse });
+      // #region agent log
+      fetch('http://127.0.0.1:7922/ingest/326d00f4-1522-4d98-ad21-c5e911302b3a',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'081765'},body:JSON.stringify({sessionId:'081765',runId:'post-fix',hypothesisId:'H2',location:'AdminRequestsPage.tsx:onSave',message:'save request ok',data:{id},timestamp:Date.now()})}).catch(()=>{});
+      // #endregion
       await reload();
     } catch (err) {
       if (err instanceof ApiClientError) {
+        // #region agent log
+        fetch('http://127.0.0.1:7922/ingest/326d00f4-1522-4d98-ad21-c5e911302b3a',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'081765'},body:JSON.stringify({sessionId:'081765',runId:'post-fix',hypothesisId:'H2',location:'AdminRequestsPage.tsx:onSave',message:'save request error',data:{id,status:err.status,msg:typeof err.body.message==='string'?err.body.message:JSON.stringify(err.body.message)},timestamp:Date.now()})}).catch(()=>{});
+        // #endregion
         setError(
           typeof err.body.message === 'string'
             ? err.body.message
@@ -257,12 +283,48 @@ export function AdminRequestsPage() {
               <div className="ds-stack">
                 <TextField
                   id={`admin-request-edit-titre-${item.id}`}
-                  label="Titre (édition)"
-                  value={editTitre[item.id] ?? item.titre}
+                  label="Titre"
+                  value={editDrafts[item.id]?.titre ?? item.titre}
                   onChange={(e) =>
-                    setEditTitre((prev) => ({
+                    setEditDrafts((prev) => ({
                       ...prev,
-                      [item.id]: e.target.value,
+                      [item.id]: {
+                        titre: e.target.value,
+                        description:
+                          prev[item.id]?.description ?? item.description,
+                        adresse: prev[item.id]?.adresse ?? item.adresse,
+                      },
+                    }))
+                  }
+                />
+                <TextField
+                  id={`admin-request-edit-description-${item.id}`}
+                  label="Description"
+                  value={editDrafts[item.id]?.description ?? item.description}
+                  onChange={(e) =>
+                    setEditDrafts((prev) => ({
+                      ...prev,
+                      [item.id]: {
+                        titre: prev[item.id]?.titre ?? item.titre,
+                        description: e.target.value,
+                        adresse: prev[item.id]?.adresse ?? item.adresse,
+                      },
+                    }))
+                  }
+                />
+                <TextField
+                  id={`admin-request-edit-adresse-${item.id}`}
+                  label="Adresse"
+                  value={editDrafts[item.id]?.adresse ?? item.adresse}
+                  onChange={(e) =>
+                    setEditDrafts((prev) => ({
+                      ...prev,
+                      [item.id]: {
+                        titre: prev[item.id]?.titre ?? item.titre,
+                        description:
+                          prev[item.id]?.description ?? item.description,
+                        adresse: e.target.value,
+                      },
                     }))
                   }
                 />
@@ -270,7 +332,7 @@ export function AdminRequestsPage() {
                   <Button
                     variant="secondary"
                     disabled={busyId === item.id}
-                    onClick={() => void onSaveTitre(item.id)}
+                    onClick={() => void onSave(item.id)}
                   >
                     Enregistrer
                   </Button>
@@ -279,7 +341,7 @@ export function AdminRequestsPage() {
                     disabled={busyId === item.id}
                     onClick={() => void onCancel(item.id)}
                   >
-                    Annuler
+                    Annuler la demande
                   </Button>
                   {item.mission?.status === 'CONFIRMED' ? (
                     <Link
