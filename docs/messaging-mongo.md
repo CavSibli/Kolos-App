@@ -49,4 +49,20 @@ Seed démo : `pnpm --filter @kolos/api seed:mongo`
 }
 ```
 
+Réponse API enrichie (noms lus depuis Postgres `users`) :
+
+```json
+{
+  "id": "68d8f2b7c4e7b91a2f0e1002",
+  "conversationId": "68d8f2a1c4e7b91a2f0e1001",
+  "missionId": 42,
+  "userId": "b2c3d4e5-f6a7-8901-bcde-f12345678901",
+  "authorFirstName": "Bob",
+  "authorLastName": "Aidant",
+  "authorDisplayName": "Bob Aidant",
+  "body": "Bonjour, je confirme mon arrivée vers 14h devant le magasin Carrefour République.",
+  "createdAt": "2026-09-28T14:05:44.000Z"
+}
+```
+
 UI : `/app/missions/:missionId/messages` (design system Kolos).

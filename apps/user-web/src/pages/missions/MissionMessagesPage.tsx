@@ -2,6 +2,7 @@ import { FormEvent, useCallback, useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { ApiClientError } from '@kolos/http-client';
 import type { MissionMessageResponse } from '@kolos/shared-types';
+import { useAuth } from '../../app/providers/AuthProvider';
 import { useMarketplace } from '../../app/hooks/useMarketplace';
 import { PageMeta } from '../../app/seo/PageMeta';
 import {
@@ -15,6 +16,7 @@ import {
 
 export function MissionMessagesPage() {
   const { missionId } = useParams();
+  const { user } = useAuth();
   const { listMissionMessages, postMissionMessage } = useMarketplace();
   const [messages, setMessages] = useState<MissionMessageResponse[]>([]);
   const [draft, setDraft] = useState('');
@@ -80,6 +82,13 @@ export function MissionMessagesPage() {
     }
   }
 
+  function senderLabel(message: MissionMessageResponse): string {
+    if (user && message.userId === user.id) {
+      return `Vous (${message.authorDisplayName})`;
+    }
+    return message.authorDisplayName || 'Participant';
+  }
+
   if (isLoading) {
     return (
       <div className="container">
@@ -130,17 +139,28 @@ export function MissionMessagesPage() {
           />
         ) : (
           <ul className="ds-message-list">
-            {messages.map((message) => (
-              <li key={message.id} className="ds-message-item">
-                <p className="ds-meta">
-                  <span>{message.userId.slice(0, 8)}…</span>
-                  <span>
-                    {new Date(message.createdAt).toLocaleString('fr-FR')}
-                  </span>
-                </p>
-                <p>{message.body}</p>
-              </li>
-            ))}
+            {messages.map((message) => {
+              const isMine = Boolean(user && message.userId === user.id);
+              return (
+                <li
+                  key={message.id}
+                  className={[
+                    'ds-message-item',
+                    isMine ? 'ds-message-item--mine' : '',
+                  ]
+                    .filter(Boolean)
+                    .join(' ')}
+                >
+                  <p className="ds-meta">
+                    <strong>{senderLabel(message)}</strong>
+                    <span>
+                      {new Date(message.createdAt).toLocaleString('fr-FR')}
+                    </span>
+                  </p>
+                  <p>{message.body}</p>
+                </li>
+              );
+            })}
           </ul>
         )}
       </Card>

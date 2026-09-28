@@ -5,6 +5,7 @@ import { CONVERSATION_REPOSITORY, MESSAGE_REPOSITORY } from '../../messaging.tok
 import type { ConversationRepository } from '../../domain/repositories/conversation.repository';
 import type { MessageRepository } from '../../domain/repositories/message.repository';
 import { MissionMessagingAccessService } from '../services/mission-messaging-access.service';
+import { MessageAuthorEnricher } from '../services/message-author-enricher';
 import {
   MessageResult,
   PostMessageCommand,
@@ -14,6 +15,7 @@ import {
 export class PostMessageUseCase {
   constructor(
     private readonly access: MissionMessagingAccessService,
+    private readonly authorEnricher: MessageAuthorEnricher,
     @Inject(CONVERSATION_REPOSITORY)
     private readonly conversationRepository: ConversationRepository,
     @Inject(MESSAGE_REPOSITORY)
@@ -46,13 +48,6 @@ export class PostMessageUseCase {
       createdAt: this.clock.now(),
     });
 
-    return {
-      id: saved.id,
-      conversationId: saved.conversationId,
-      missionId: saved.missionId,
-      userId: saved.userId,
-      body: saved.body,
-      createdAt: saved.createdAt.toISOString(),
-    };
+    return this.authorEnricher.enrichOne(saved);
   }
 }

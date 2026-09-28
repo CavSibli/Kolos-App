@@ -6,6 +6,7 @@ import { ListMessagesUseCase } from './list-messages.use-case';
 import { Mission } from '@modules/missions/domain/entities/mission.entity';
 import { Request } from '@modules/requests/domain/entities/request.entity';
 import { MissionMessagingAccessService } from '../services/mission-messaging-access.service';
+import { MessageAuthorEnricher } from '../services/message-author-enricher';
 
 describe('ListMessagesUseCase', () => {
   const now = new Date('2026-09-28T15:00:00.000Z');
@@ -43,6 +44,10 @@ describe('ListMessagesUseCase', () => {
     assertParticipant: jest.fn(),
   };
 
+  const authorEnricher = {
+    enrichMany: jest.fn(),
+  };
+
   const conversationRepository = {
     findByMissionId: jest.fn(),
   };
@@ -53,6 +58,7 @@ describe('ListMessagesUseCase', () => {
 
   const useCase = new ListMessagesUseCase(
     access as unknown as MissionMessagingAccessService,
+    authorEnricher as unknown as MessageAuthorEnricher,
     conversationRepository as never,
     messageRepository as never,
   );
@@ -60,6 +66,19 @@ describe('ListMessagesUseCase', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     access.assertParticipant.mockResolvedValue({ mission, request });
+    authorEnricher.enrichMany.mockImplementation(async (messages) =>
+      messages.map((message: { id: string; userId: string; body: string; conversationId: string; missionId: number; createdAt: Date }) => ({
+        id: message.id,
+        conversationId: message.conversationId,
+        missionId: message.missionId,
+        userId: message.userId,
+        authorFirstName: 'Bob',
+        authorLastName: 'Aidant',
+        authorDisplayName: 'Bob Aidant',
+        body: message.body,
+        createdAt: message.createdAt.toISOString(),
+      })),
+    );
   });
 
   it('returns empty list when no conversation exists', async () => {
@@ -74,7 +93,7 @@ describe('ListMessagesUseCase', () => {
     expect(messageRepository.listByConversationId).not.toHaveBeenCalled();
   });
 
-  it('lists messages for an existing conversation', async () => {
+  it('lists messages with author display names', async () => {
     conversationRepository.findByMissionId.mockResolvedValue({
       id: 'conv-1',
       missionId: 5,
@@ -97,12 +116,16 @@ describe('ListMessagesUseCase', () => {
       userId: 'demandeur-1',
     });
 
+    expect(authorEnricher.enrichMany).toHaveBeenCalled();
     expect(result).toEqual([
       {
         id: 'msg-1',
         conversationId: 'conv-1',
         missionId: 5,
         userId: 'aidant-1',
+        authorFirstName: 'Bob',
+        authorLastName: 'Aidant',
+        authorDisplayName: 'Bob Aidant',
         body: 'Bonjour',
         createdAt: now.toISOString(),
       },

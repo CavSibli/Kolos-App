@@ -3,6 +3,7 @@ import { PostMessageUseCase } from './post-message.use-case';
 import { Mission } from '@modules/missions/domain/entities/mission.entity';
 import { Request } from '@modules/requests/domain/entities/request.entity';
 import { MissionMessagingAccessService } from '../services/mission-messaging-access.service';
+import { MessageAuthorEnricher } from '../services/message-author-enricher';
 
 describe('PostMessageUseCase', () => {
   const now = new Date('2026-09-28T15:05:00.000Z');
@@ -41,6 +42,10 @@ describe('PostMessageUseCase', () => {
     resolveParticipantIds: jest.fn(),
   };
 
+  const authorEnricher = {
+    enrichOne: jest.fn(),
+  };
+
   const conversationRepository = {
     getOrCreate: jest.fn(),
   };
@@ -55,6 +60,7 @@ describe('PostMessageUseCase', () => {
 
   const useCase = new PostMessageUseCase(
     access as unknown as MissionMessagingAccessService,
+    authorEnricher as unknown as MessageAuthorEnricher,
     conversationRepository as never,
     messageRepository as never,
     clock as never,
@@ -77,6 +83,20 @@ describe('PostMessageUseCase', () => {
       id: 'msg-2',
       ...input,
     }));
+    authorEnricher.enrichOne.mockImplementation(async (message) => ({
+      id: message.id,
+      conversationId: message.conversationId,
+      missionId: message.missionId,
+      userId: message.userId,
+      authorFirstName: 'Alice',
+      authorLastName: 'Demandeur',
+      authorDisplayName: 'Alice Demandeur',
+      body: message.body,
+      createdAt:
+        typeof message.createdAt === 'string'
+          ? message.createdAt
+          : message.createdAt.toISOString(),
+    }));
   });
 
   it('posts a message and creates conversation if needed', async () => {
@@ -97,14 +117,8 @@ describe('PostMessageUseCase', () => {
       body: 'Merci pour votre aide',
       createdAt: now,
     });
-    expect(result).toEqual({
-      id: 'msg-2',
-      conversationId: 'conv-1',
-      missionId: 5,
-      userId: 'demandeur-1',
-      body: 'Merci pour votre aide',
-      createdAt: now.toISOString(),
-    });
+    expect(result.authorDisplayName).toBe('Alice Demandeur');
+    expect(result.body).toBe('Merci pour votre aide');
   });
 
   it('rejects empty body', async () => {

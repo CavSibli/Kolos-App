@@ -3,6 +3,7 @@ import { CONVERSATION_REPOSITORY, MESSAGE_REPOSITORY } from '../../messaging.tok
 import type { ConversationRepository } from '../../domain/repositories/conversation.repository';
 import type { MessageRepository } from '../../domain/repositories/message.repository';
 import { MissionMessagingAccessService } from '../services/mission-messaging-access.service';
+import { MessageAuthorEnricher } from '../services/message-author-enricher';
 import {
   ListMessagesCommand,
   MessageResult,
@@ -12,6 +13,7 @@ import {
 export class ListMessagesUseCase {
   constructor(
     private readonly access: MissionMessagingAccessService,
+    private readonly authorEnricher: MessageAuthorEnricher,
     @Inject(CONVERSATION_REPOSITORY)
     private readonly conversationRepository: ConversationRepository,
     @Inject(MESSAGE_REPOSITORY)
@@ -32,13 +34,6 @@ export class ListMessagesUseCase {
       conversation.id,
     );
 
-    return messages.map((message) => ({
-      id: message.id,
-      conversationId: message.conversationId,
-      missionId: message.missionId,
-      userId: message.userId,
-      body: message.body,
-      createdAt: message.createdAt.toISOString(),
-    }));
+    return this.authorEnricher.enrichMany(messages);
   }
 }

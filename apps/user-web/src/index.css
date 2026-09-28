@@ -526,6 +526,11 @@ a.ds-button--primary:hover {
   border: 1px solid color-mix(in srgb, var(--kolos-color-border, #c5d0cb) 80%, transparent);
 }
 
+.ds-message-item--mine {
+  background: color-mix(in srgb, var(--kolos-color-brand) 12%, white);
+  border-color: color-mix(in srgb, var(--kolos-color-brand) 35%, transparent);
+}
+
 .ds-message-item p {
   margin: 0.35rem 0 0;
 }

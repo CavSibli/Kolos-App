@@ -14,6 +14,7 @@ import {
 import { MongooseConversationRepository } from './infrastructure/mongo/repositories/mongoose-conversation.repository';
 import { MongooseMessageRepository } from './infrastructure/mongo/repositories/mongoose-message.repository';
 import { MissionMessagingAccessService } from './application/services/mission-messaging-access.service';
+import { MessageAuthorEnricher } from './application/services/message-author-enricher';
 import { ListMessagesUseCase } from './application/use-cases/list-messages.use-case';
 import { PostMessageUseCase } from './application/use-cases/post-message.use-case';
 import { MissionMessagesController } from './presentation/http/controllers/mission-messages.controller';
@@ -43,6 +44,7 @@ import {
       useClass: MongooseMessageRepository,
     },
     MissionMessagingAccessService,
+    MessageAuthorEnricher,
     ListMessagesUseCase,
     PostMessageUseCase,
   ],

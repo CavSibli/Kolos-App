@@ -14,6 +14,9 @@ export interface MessageResult {
   conversationId: string;
   missionId: number;
   userId: string;
+  authorFirstName: string | null;
+  authorLastName: string | null;
+  authorDisplayName: string;
   body: string;
   createdAt: string;
 }
