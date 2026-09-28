@@ -36,7 +36,7 @@ Infra déjà branchée (`MongoModule` + health) ; collections métier à livrer 
 | Collection (cible) | Usage | Tâche |
 |--------------------|-------|-------|
 | Conversations / Messages | Fil post-mission entre participants | T11 |
-| `moderation_actions` | Journal d’actions admin (ex. classer / masquer un signalement) | T12 / T14 |
+| `moderation_actions` | Journal d’actions admin (ex. classer / masquer un signalement) | T12 fait ; écriture UI = T14 |
 
 **Règle :** pas de marketplace (demandes, candidatures, missions) en Mongo.
 
@@ -97,7 +97,7 @@ Autres contraintes documentées dans le README : **pnpm 9+**, Docker Compose pou
 |--------|-------------|----------------|
 | Postgres marketplace | Opérationnel (jusqu’à mock paiement + signalement) | + admin signalements (T13–T14) |
 | Mongo connexion | `MongoModule` + health | inchangé |
-| Mongo métier | Messagerie Conversations/Messages (T11) | + `moderation_actions` (T12) + écriture admin (T14) |
+| Mongo métier | Messagerie (T11) + `moderation_actions` (T12) | + écriture admin depuis `/admin` (T14) |
 | Conception MPD | Messagerie hors PG (T07) | Option C tenue |
 | UML UC / séquences | Amendement T08 dans `docs/uml/` | Messagerie Mongo, admin, signalement ; hors MVP documenté |
 
@@ -106,6 +106,7 @@ Autres contraintes documentées dans le README : **pnpm 9+**, Docker Compose pou
 ## 7. Références internes
 
 - Plan d’exécution : `Kolos Soutenance Final/Source/plan_prompts_completion.md` (T06–T14)  
+- Preuve Mongo moderation : `docs/moderation-actions-mongo.md` (T12)  
 - Périmètre produit : `ce_qu'il_reste_à_faire.md` §2 Option C  
 - MPD Semaine 1 : `Kolos Semaine 1 - Conception/MCD MLD et MPD/`  
 - Code : `apps/api` (Nest Onion), `apps/user-web` (React), `docker-compose.yml`

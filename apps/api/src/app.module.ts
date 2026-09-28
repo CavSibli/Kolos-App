@@ -15,6 +15,7 @@ import { ApplicationsModule } from './modules/applications/applications.module';
 import { MissionsModule } from './modules/missions/missions.module';
 import { ReportsModule } from './modules/reports/reports.module';
 import { MessagingModule } from './modules/messaging/messaging.module';
+import { ModerationModule } from './modules/moderation/moderation.module';
 import { AllExceptionsFilter } from './shared/presentation/common/filters/all-exceptions.filter';
 
 @Module({
@@ -48,6 +49,7 @@ import { AllExceptionsFilter } from './shared/presentation/common/filters/all-ex
     MissionsModule,
     ReportsModule,
     MessagingModule,
+    ModerationModule,
   ],
   providers: [
     {
