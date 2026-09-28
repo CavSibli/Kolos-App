@@ -185,6 +185,7 @@ button:disabled {
 .card-list {
   display: grid;
   gap: var(--kolos-space-4);
+  margin-top: var(--kolos-space-4);
 }
 
 .success {
@@ -267,6 +268,11 @@ ul {
   cursor: not-allowed;
 }
 
+.ds-button:focus-visible {
+  outline: 2px solid var(--kolos-color-focus);
+  outline-offset: 2px;
+}
+
 .ds-button--primary {
   background: var(--kolos-color-brand);
   color: #fff;
@@ -325,6 +331,12 @@ a.ds-button--primary:hover {
   background: var(--kolos-color-surface);
   color: var(--kolos-color-ink);
   font: inherit;
+}
+
+.ds-field__control--textarea {
+  min-height: 6.5rem;
+  resize: vertical;
+  line-height: 1.45;
 }
 
 .ds-field__control:focus {
@@ -433,9 +445,70 @@ a.ds-button--primary:hover {
   color: var(--kolos-color-brand);
 }
 
-.ds-login-lead {
+.ds-login-lead,
+.ds-page-lead {
   margin: 0 0 var(--kolos-space-5);
   color: var(--kolos-color-ink-muted);
+}
+
+.ds-page-footer {
+  margin-top: var(--kolos-space-5);
+  color: var(--kolos-color-ink-muted);
+  font-size: 0.95rem;
+}
+
+.ds-form-error {
+  margin: 0;
+  color: var(--kolos-color-danger);
+  font-size: 0.9rem;
+}
+
+.ds-form-success {
+  margin: 0;
+  color: var(--kolos-color-success);
+  font-size: 0.9rem;
+}
+
+.ds-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--kolos-space-3);
+  align-items: center;
+}
+
+.ds-meta {
+  display: grid;
+  gap: var(--kolos-space-2);
+  margin: 0 0 var(--kolos-space-3);
+  color: var(--kolos-color-ink-muted);
+  font-size: 0.92rem;
+}
+
+.ds-meta strong {
+  color: var(--kolos-color-ink);
+}
+
+.ds-stack {
+  display: grid;
+  gap: var(--kolos-space-4);
+}
+
+.ds-text-link {
+  font-weight: 600;
+}
+
+.ds-status-list {
+  margin: 0;
+  padding-left: 1.1rem;
+  display: grid;
+  gap: var(--kolos-space-2);
+}
+
+.ds-status-list li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--kolos-space-2);
 }
 
 /* --- AppShell (T03) --- */
@@ -976,4 +1049,81 @@ a.ds-button--primary:hover {
 .legal-page__main p {
   margin: 0;
   color: var(--kolos-color-ink);
+}
+
+/* --- Admin shell (side routing) --- */
+
+.admin-shell {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--kolos-color-bg);
+}
+
+.admin-shell__header {
+  background: var(--kolos-color-ink);
+  color: #fff;
+}
+
+.admin-shell__header-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--kolos-space-3);
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: var(--kolos-space-2) var(--kolos-space-4);
+  min-height: 56px;
+}
+
+.admin-shell__brand {
+  font-family: var(--kolos-font-display);
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #fff;
+  text-decoration: none;
+}
+
+.admin-shell__brand:hover {
+  color: #fff;
+  opacity: 0.92;
+}
+
+.admin-shell__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--kolos-space-3);
+  flex-wrap: wrap;
+}
+
+.admin-shell__link {
+  color: rgba(255, 255, 255, 0.88);
+  text-decoration: none;
+  font-weight: 600;
+  min-height: var(--kolos-touch-min);
+  display: inline-flex;
+  align-items: center;
+}
+
+.admin-shell__link:hover {
+  color: #fff;
+}
+
+.admin-shell__user {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.9rem;
+}
+
+.admin-shell__actions .ds-button--ghost {
+  color: #fff;
+}
+
+.admin-shell__main {
+  flex: 1;
+  width: 100%;
+  padding-bottom: var(--kolos-space-6);
+}
+
+.admin-shell__main > .container {
+  margin-top: var(--kolos-space-4);
 }

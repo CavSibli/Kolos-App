@@ -1,8 +1,12 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
-import { ProtectedRoute } from './guards/ProtectedRoute';
-import { RoleRoute } from './guards/RoleRoute';
+import { AuthGuard } from './guards/AuthGuard';
+import { AdminGuard } from './guards/AdminGuard';
+import { GuestRoute } from './guards/GuestRoute';
+import { RoleGuard } from './guards/RoleGuard';
 import { AppShell } from './layout/AppShell';
+import { AdminShell } from './layout/AdminShell';
 import { PageMeta } from './seo/PageMeta';
+import { LegacyRedirect } from './routing/LegacyRedirect';
 import { HomePage } from '../pages/home/HomePage';
 import { LandingPage } from '../pages/marketing/LandingPage';
 import { MentionsLegalesPage } from '../pages/legal/MentionsLegalesPage';
@@ -16,12 +20,22 @@ import { MyRequestsPage } from '../pages/requests/MyRequestsPage';
 import { RequestCandidatesPage } from '../pages/requests/RequestCandidatesPage';
 import { MyApplicationsPage } from '../pages/applications/MyApplicationsPage';
 import { ApplicationDetailPage } from '../pages/applications/ApplicationDetailPage';
+import { AdminHomePage } from '../pages/admin/AdminHomePage';
+import { NotFoundPage } from '../pages/errors/NotFoundPage';
 
 function ProtectedAppShell() {
   return (
-    <ProtectedRoute>
+    <AuthGuard>
       <AppShell />
-    </ProtectedRoute>
+    </AuthGuard>
+  );
+}
+
+function ProtectedAdminShell() {
+  return (
+    <AdminGuard>
+      <AdminShell />
+    </AdminGuard>
   );
 }
 
@@ -49,91 +63,133 @@ export function AppRouter() {
       <Route
         path="/login"
         element={
-          <>
+          <GuestRoute>
             <AuthPageMeta
               title="Connexion"
               description="Connectez-vous à votre espace Kolos demandeur ou aidant."
               path="/login"
             />
             <LoginPage />
-          </>
+          </GuestRoute>
         }
       />
       <Route
         path="/register"
         element={
-          <>
+          <GuestRoute>
             <AuthPageMeta
               title="Inscription"
               description="Créez un compte Kolos pour publier une demande ou candidater."
               path="/register"
             />
             <RegisterPage />
-          </>
+          </GuestRoute>
         }
       />
 
-      <Route element={<ProtectedAppShell />}>
-        <Route path="/app" element={<HomePage />} />
+      {/* Legacy redirects → /app/* */}
+      <Route
+        path="/requests/new"
+        element={<Navigate to="/app/requests/new" replace />}
+      />
+      <Route
+        path="/requests/mine/:id"
+        element={
+          <LegacyRedirect
+            to={({ id }) => `/app/requests/mine/${id ?? ''}`}
+          />
+        }
+      />
+      <Route
+        path="/requests/mine"
+        element={<Navigate to="/app/requests/mine" replace />}
+      />
+      <Route
+        path="/requests"
+        element={<Navigate to="/app/requests" replace />}
+      />
+      <Route
+        path="/applications/mine/:id"
+        element={
+          <LegacyRedirect
+            to={({ id }) => `/app/applications/mine/${id ?? ''}`}
+          />
+        }
+      />
+      <Route
+        path="/applications/mine"
+        element={<Navigate to="/app/applications/mine" replace />}
+      />
+      <Route
+        path="/profile/aidant"
+        element={<Navigate to="/app/profile/aidant" replace />}
+      />
+
+      <Route path="/app" element={<ProtectedAppShell />}>
+        <Route index element={<HomePage />} />
         <Route
-          path="/profile/aidant"
+          path="profile/aidant"
           element={
-            <RoleRoute roles={['aidant']}>
+            <RoleGuard roles={['aidant']}>
               <AidantProfilePage />
-            </RoleRoute>
+            </RoleGuard>
           }
         />
         <Route
-          path="/requests/new"
+          path="requests/new"
           element={
-            <RoleRoute roles={['demandeur']}>
+            <RoleGuard roles={['demandeur']}>
               <PublishRequestPage />
-            </RoleRoute>
+            </RoleGuard>
           }
         />
         <Route
-          path="/requests/mine/:id"
+          path="requests/mine/:id"
           element={
-            <RoleRoute roles={['demandeur']}>
+            <RoleGuard roles={['demandeur']}>
               <RequestCandidatesPage />
-            </RoleRoute>
+            </RoleGuard>
           }
         />
         <Route
-          path="/requests/mine"
+          path="requests/mine"
           element={
-            <RoleRoute roles={['demandeur']}>
+            <RoleGuard roles={['demandeur']}>
               <MyRequestsPage />
-            </RoleRoute>
+            </RoleGuard>
           }
         />
         <Route
-          path="/requests"
+          path="requests"
           element={
-            <RoleRoute roles={['aidant']}>
+            <RoleGuard roles={['aidant']}>
               <RequestsListPage />
-            </RoleRoute>
+            </RoleGuard>
           }
         />
         <Route
-          path="/applications/mine/:id"
+          path="applications/mine/:id"
           element={
-            <RoleRoute roles={['aidant']}>
+            <RoleGuard roles={['aidant']}>
               <ApplicationDetailPage />
-            </RoleRoute>
+            </RoleGuard>
           }
         />
         <Route
-          path="/applications/mine"
+          path="applications/mine"
           element={
-            <RoleRoute roles={['aidant']}>
+            <RoleGuard roles={['aidant']}>
               <MyApplicationsPage />
-            </RoleRoute>
+            </RoleGuard>
           }
         />
       </Route>
 
-      <Route path="*" element={<Navigate to="/" replace />} />
+      <Route path="/admin" element={<ProtectedAdminShell />}>
+        <Route index element={<AdminHomePage />} />
+      </Route>
+
+      <Route path="*" element={<NotFoundPage />} />
     </Routes>
   );
 }

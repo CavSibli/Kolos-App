@@ -21,6 +21,7 @@ export function AppShell() {
 
   const isAidant = Boolean(user?.roles.includes('aidant'));
   const isDemandeur = Boolean(user?.roles.includes('demandeur'));
+  const isAdmin = Boolean(user?.roles.includes('admin'));
 
   const navItems = useMemo(() => {
     const items: NavItem[] = [
@@ -29,14 +30,14 @@ export function AppShell() {
 
     if (isAidant) {
       items.push(
-        { to: '/requests', label: 'Demandes', shortLabel: 'Demandes' },
+        { to: '/app/requests', label: 'Demandes', shortLabel: 'Demandes' },
         {
-          to: '/applications/mine',
+          to: '/app/applications/mine',
           label: 'Mes candidatures',
           shortLabel: 'Candidatures',
         },
         {
-          to: '/profile/aidant',
+          to: '/app/profile/aidant',
           label: 'Profil aidant',
           shortLabel: 'Profil',
         },
@@ -46,12 +47,12 @@ export function AppShell() {
     if (isDemandeur) {
       items.push(
         {
-          to: '/requests/new',
+          to: '/app/requests/new',
           label: 'Publier une demande',
           shortLabel: 'Publier',
         },
         {
-          to: '/requests/mine',
+          to: '/app/requests/mine',
           label: 'Mes demandes',
           shortLabel: 'Demandes',
         },
@@ -86,12 +87,17 @@ export function AppShell() {
               <NavLink
                 key={item.to}
                 to={item.to}
-                end
+                end={item.to === '/app'}
                 className={navClassName}
               >
                 {item.label}
               </NavLink>
             ))}
+            {isAdmin ? (
+              <NavLink to="/admin" className={navClassName}>
+                Admin
+              </NavLink>
+            ) : null}
           </nav>
 
           <div className="app-shell__header-actions">
@@ -135,13 +141,22 @@ export function AppShell() {
                 <NavLink
                   key={item.to}
                   to={item.to}
-                  end
+                  end={item.to === '/app'}
                   className={navClassName}
                   onClick={closeDrawer}
                 >
                   {item.label}
                 </NavLink>
               ))}
+              {isAdmin ? (
+                <NavLink
+                  to="/admin"
+                  className={navClassName}
+                  onClick={closeDrawer}
+                >
+                  Admin
+                </NavLink>
+              ) : null}
             </nav>
             <Button
               variant="secondary"
@@ -163,7 +178,7 @@ export function AppShell() {
           <NavLink
             key={item.to}
             to={item.to}
-            end
+            end={item.to === '/app'}
             className={({ isActive }) =>
               [
                 'app-shell__bottom-link',

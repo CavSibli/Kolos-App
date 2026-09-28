@@ -1,12 +1,15 @@
 import { FormEvent, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { ApiClientError } from '@kolos/http-client';
 import { useAuth } from '../../app/providers/AuthProvider';
+import { safeNext } from '../../app/routing/safeNext';
+import { PageMeta } from '../../app/seo/PageMeta';
 import { Button, TextField } from '../../ui';
 
 export function LoginPage() {
   const { login } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -19,7 +22,7 @@ export function LoginPage() {
 
     try {
       await login({ email, password });
-      navigate('/app');
+      navigate(safeNext(searchParams.get('next')));
     } catch (err) {
       if (err instanceof ApiClientError) {
         setError(
@@ -37,12 +40,17 @@ export function LoginPage() {
 
   return (
     <div className="container">
+      <PageMeta
+        title="Connexion"
+        description="Connectez-vous à votre espace Kolos demandeur ou aidant."
+        path="/login"
+      />
       <p className="ds-login-brand">Kolos</p>
       <h1>Connexion</h1>
-      <p className="ds-login-lead">
+      <p className="ds-page-lead">
         Accédez à votre espace demandeur ou aidant.
       </p>
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} noValidate>
         <TextField
           id="login-email"
           label="Email"
@@ -62,12 +70,16 @@ export function LoginPage() {
           minLength={8}
           autoComplete="current-password"
         />
-        {error ? <p className="error">{error}</p> : null}
+        {error ? (
+          <p className="ds-form-error" role="alert">
+            {error}
+          </p>
+        ) : null}
         <Button type="submit" block disabled={isSubmitting}>
           {isSubmitting ? 'Connexion…' : 'Se connecter'}
         </Button>
       </form>
-      <p>
+      <p className="ds-page-footer">
         Pas de compte ? <Link to="/register">S&apos;inscrire</Link>
       </p>
     </div>

@@ -3,16 +3,18 @@ import { Link } from 'react-router-dom';
 import { ApiClientError } from '@kolos/http-client';
 import type { PublishedRequestResponse } from '@kolos/shared-types';
 import { useMarketplace } from '../../app/hooks/useMarketplace';
-
-function statusLabel(status: string): string {
-  const labels: Record<string, string> = {
-    PENDING: 'En attente',
-    ACCEPTED: 'Acceptée',
-    REFUSED: 'Refusée',
-    WITHDRAWN: 'Retirée',
-  };
-  return labels[status] ?? status;
-}
+import { PageMeta } from '../../app/seo/PageMeta';
+import { formatDateTime, statusLabel, statusTone } from '../../lib/status';
+import {
+  Badge,
+  Button,
+  Card,
+  EmptyState,
+  ErrorState,
+  LoadingState,
+  TextArea,
+  TextField,
+} from '../../ui';
 
 export function RequestsListPage() {
   const { listPublishedRequests, applyToRequest } = useMarketplace();
@@ -102,38 +104,44 @@ export function RequestsListPage() {
 
   return (
     <div className="container">
+      <PageMeta
+        title="Demandes disponibles"
+        description="Parcourez les missions publiées et candidatez."
+        path="/app/requests"
+        noIndex
+      />
       <h1>Demandes disponibles</h1>
-      {isLoading ? <p>Chargement...</p> : null}
-      {error && selectedId === null ? <p className="error">{error}</p> : null}
-      {success ? <p className="success">{success}</p> : null}
+      <p className="ds-page-lead">
+        Choisissez une mission, puis envoyez votre candidature.
+      </p>
+
+      {isLoading ? <LoadingState /> : null}
+      {error && selectedId === null ? <ErrorState message={error} /> : null}
+      {success ? (
+        <p className="ds-form-success" role="status">
+          {success}
+        </p>
+      ) : null}
 
       <div className="card-list">
         {requests.map((request) => (
-          <article key={request.id} className="card">
-            <h2>{request.titre}</h2>
+          <Card key={request.id} as="article" title={request.titre}>
             {request.myApplicationStatus ? (
               <p>
-                <span
-                  className={`badge badge-${request.myApplicationStatus.toLowerCase()}`}
-                >
+                <Badge tone={statusTone(request.myApplicationStatus)}>
                   Déjà candidaté : {statusLabel(request.myApplicationStatus)}
-                </span>
+                </Badge>
               </p>
             ) : null}
             <p>{request.description}</p>
-            <p>
-              <strong>Adresse :</strong> {request.adresse}
-            </p>
-            <p>
-              <strong>Mission :</strong>{' '}
-              {new Date(request.dateMission).toLocaleString('fr-FR')}
-            </p>
-            <p>
-              <strong>Aidants requis :</strong> {request.nbAidantsRequis}
+            <p className="ds-meta">
+              <span>Adresse : {request.adresse}</span>
+              <span>Mission : {formatDateTime(request.dateMission)}</span>
+              <span>Aidants requis : {request.nbAidantsRequis}</span>
             </p>
 
             {!request.myApplicationStatus && selectedId !== request.id ? (
-              <button
+              <Button
                 type="button"
                 onClick={() => {
                   setError(null);
@@ -142,7 +150,7 @@ export function RequestsListPage() {
                 }}
               >
                 Candidater
-              </button>
+              </Button>
             ) : null}
 
             {selectedId === request.id ? (
@@ -150,49 +158,67 @@ export function RequestsListPage() {
                 ref={formRef}
                 className="apply-form"
                 onSubmit={handleApply}
+                noValidate
               >
-                <h3>Votre candidature</h3>
-                {error ? <p className="error">{error}</p> : null}
-                <label>
-                  Message
-                  <textarea
-                    value={message}
-                    onChange={(event) => setMessage(event.target.value)}
-                    rows={3}
-                  />
-                </label>
-                <label>
-                  Prix proposé (€, optionnel)
-                  <input
-                    type="number"
-                    min={0}
-                    step="0.01"
-                    value={prixPropose}
-                    onChange={(event) => setPrixPropose(event.target.value)}
-                  />
-                </label>
-                <div className="actions">
-                  <button type="submit" disabled={isSubmitting}>
-                    {isSubmitting ? 'Envoi...' : 'Envoyer ma candidature'}
-                  </button>
-                  <button type="button" onClick={resetForm} disabled={isSubmitting}>
+                <h3 className="ds-card__title">Votre candidature</h3>
+                {error ? (
+                  <p className="ds-form-error" role="alert">
+                    {error}
+                  </p>
+                ) : null}
+                <TextArea
+                  id={`apply-message-${request.id}`}
+                  label="Message"
+                  value={message}
+                  onChange={(event) => setMessage(event.target.value)}
+                  rows={3}
+                />
+                <TextField
+                  id={`apply-prix-${request.id}`}
+                  label="Prix proposé (€, optionnel)"
+                  type="number"
+                  min={0}
+                  step="0.01"
+                  value={prixPropose}
+                  onChange={(event) => setPrixPropose(event.target.value)}
+                />
+                <div className="ds-actions">
+                  <Button type="submit" disabled={isSubmitting}>
+                    {isSubmitting ? 'Envoi…' : 'Envoyer ma candidature'}
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    onClick={resetForm}
+                    disabled={isSubmitting}
+                  >
                     Annuler
-                  </button>
+                  </Button>
                 </div>
               </form>
             ) : null}
-          </article>
+          </Card>
         ))}
       </div>
 
-      {!isLoading && requests.length === 0 ? (
-        <p>Aucune demande disponible pour le moment.</p>
+      {!isLoading && !error && requests.length === 0 ? (
+        <EmptyState
+          title="Aucune demande disponible"
+          body="Revenez plus tard ou complétez votre profil aidant."
+          action={
+            <Link
+              to="/app/profile/aidant"
+              className="ds-button ds-button--secondary"
+            >
+              Mon profil aidant
+            </Link>
+          }
+        />
       ) : null}
 
-      <p>
-        <Link to="/applications/mine">Voir mes candidatures</Link>
-      </p>
-      <p>
+      <p className="ds-page-footer">
+        <Link to="/app/applications/mine">Voir mes candidatures</Link>
+        {' · '}
         <Link to="/app">Retour à l&apos;accueil</Link>
       </p>
     </div>

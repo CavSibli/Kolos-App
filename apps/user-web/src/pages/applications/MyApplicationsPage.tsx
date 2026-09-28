@@ -3,20 +3,15 @@ import { Link } from 'react-router-dom';
 import { ApiClientError } from '@kolos/http-client';
 import type { ApplicationWithContextResponse } from '@kolos/shared-types';
 import { useMarketplace } from '../../app/hooks/useMarketplace';
-
-function statusLabel(status: string): string {
-  const labels: Record<string, string> = {
-    PENDING: 'En attente',
-    ACCEPTED: 'Acceptée',
-    REFUSED: 'Refusée',
-    WITHDRAWN: 'Retirée',
-    AWAITING_PAYMENT: 'En attente de paiement',
-    CONFIRMED: 'Confirmée',
-    SELECTED: 'Sélectionné',
-    COMPLETED: 'Terminée',
-  };
-  return labels[status] ?? status;
-}
+import { PageMeta } from '../../app/seo/PageMeta';
+import { statusLabel, statusTone } from '../../lib/status';
+import {
+  Badge,
+  Card,
+  EmptyState,
+  ErrorState,
+  LoadingState,
+} from '../../ui';
 
 export function MyApplicationsPage() {
   const { listMyApplications } = useMarketplace();
@@ -49,49 +44,74 @@ export function MyApplicationsPage() {
 
   return (
     <div className="container">
+      <PageMeta
+        title="Mes candidatures"
+        description="Suivez le statut de vos candidatures et missions."
+        path="/app/applications/mine"
+        noIndex
+      />
       <h1>Mes candidatures</h1>
-      {isLoading ? <p>Chargement...</p> : null}
-      {error ? <p className="error">{error}</p> : null}
+      <p className="ds-page-lead">
+        Consultez l&apos;état de chaque candidature et mission associée.
+      </p>
+
+      {isLoading ? <LoadingState /> : null}
+      {error ? <ErrorState message={error} /> : null}
 
       <div className="card-list">
         {applications.map((application) => (
-          <article key={application.id} className="card">
-            <h2>{application.request.titre}</h2>
+          <Card
+            key={application.id}
+            as="article"
+            title={application.request.titre}
+          >
             <p>
-              <span className={`badge badge-${application.status.toLowerCase()}`}>
+              <Badge tone={statusTone(application.status)}>
                 Candidature : {statusLabel(application.status)}
-              </span>
+              </Badge>
             </p>
             <p>{application.request.description}</p>
-            <p>
-              <strong>Adresse :</strong> {application.request.adresse}
+            <p className="ds-meta">
+              <span>Adresse : {application.request.adresse}</span>
+              <span>
+                Demande : {statusLabel(application.request.status)}
+              </span>
+              {application.mission ? (
+                <span>
+                  Mission : {statusLabel(application.mission.status)} —{' '}
+                  {application.mission.montantTotal} €
+                </span>
+              ) : null}
+              {application.participation ? (
+                <span>
+                  Ma participation :{' '}
+                  {statusLabel(application.participation.status)}
+                </span>
+              ) : null}
             </p>
-            <p>
-              <strong>Demande :</strong> {statusLabel(application.request.status)}
-            </p>
-            {application.mission ? (
-              <p>
-                <strong>Mission :</strong>{' '}
-                {statusLabel(application.mission.status)} —{' '}
-                {application.mission.montantTotal} €
-              </p>
-            ) : null}
-            {application.participation ? (
-              <p>
-                <strong>Ma participation :</strong>{' '}
-                {statusLabel(application.participation.status)}
-              </p>
-            ) : null}
-            <Link to={`/applications/mine/${application.id}`}>Voir le détail</Link>
-          </article>
+            <Link
+              to={`/app/applications/mine/${application.id}`}
+              className="ds-button ds-button--secondary"
+            >
+              Voir le détail
+            </Link>
+          </Card>
         ))}
       </div>
 
-      {!isLoading && applications.length === 0 ? (
-        <p>Aucune candidature pour le moment.</p>
+      {!isLoading && !error && applications.length === 0 ? (
+        <EmptyState
+          title="Aucune candidature"
+          body="Parcourez les demandes disponibles pour candidater."
+          action={
+            <Link to="/app/requests" className="ds-button ds-button--primary">
+              Voir les demandes
+            </Link>
+          }
+        />
       ) : null}
 
-      <p>
+      <p className="ds-page-footer">
         <Link to="/app">Retour à l&apos;accueil</Link>
       </p>
     </div>

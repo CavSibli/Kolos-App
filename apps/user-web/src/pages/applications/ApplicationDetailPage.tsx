@@ -3,21 +3,9 @@ import { Link, useParams } from 'react-router-dom';
 import { ApiClientError } from '@kolos/http-client';
 import type { ApplicationWithContextResponse } from '@kolos/shared-types';
 import { useMarketplace } from '../../app/hooks/useMarketplace';
-
-function statusLabel(status: string): string {
-  const labels: Record<string, string> = {
-    PENDING: 'En attente',
-    ACCEPTED: 'Acceptée',
-    REFUSED: 'Refusée',
-    PUBLISHED: 'Publiée',
-    PARTIALLY_ASSIGNED: 'Partiellement assignée',
-    ASSIGNED: 'Assignée',
-    AWAITING_PAYMENT: 'En attente de paiement',
-    CONFIRMED: 'Confirmée',
-    SELECTED: 'Sélectionné',
-  };
-  return labels[status] ?? status;
-}
+import { PageMeta } from '../../app/seo/PageMeta';
+import { formatDateTime, statusLabel, statusTone } from '../../lib/status';
+import { Badge, Card, ErrorState, LoadingState } from '../../ui';
 
 export function ApplicationDetailPage() {
   const { id } = useParams();
@@ -53,66 +41,100 @@ export function ApplicationDetailPage() {
   }, [getMyApplication, id]);
 
   if (isLoading) {
-    return <div className="container">Chargement...</div>;
+    return (
+      <div className="container">
+        <LoadingState />
+      </div>
+    );
   }
 
   if (error || !application) {
     return (
       <div className="container">
-        <p className="error">{error ?? 'Candidature introuvable'}</p>
-        <Link to="/applications/mine">Retour à mes candidatures</Link>
+        <ErrorState
+          message={error ?? 'Candidature introuvable'}
+          action={
+            <Link
+              to="/app/applications/mine"
+              className="ds-button ds-button--secondary"
+            >
+              Retour à mes candidatures
+            </Link>
+          }
+        />
       </div>
     );
   }
 
   return (
     <div className="container">
+      <PageMeta
+        title={application.request.titre}
+        description="Détail de votre candidature et de la mission associée."
+        path={`/app/applications/mine/${id ?? ''}`}
+        noIndex
+      />
       <h1>{application.request.titre}</h1>
-      <div className="card">
-        <h2>Statuts</h2>
-        <ul>
-          <li>Candidature : {statusLabel(application.status)}</li>
-          <li>Demande : {statusLabel(application.request.status)}</li>
+      <p className="ds-page-lead">
+        Statuts de votre candidature, de la demande et de la mission.
+      </p>
+
+      <Card title="Statuts">
+        <ul className="ds-status-list">
+          <li>
+            Candidature :{' '}
+            <Badge tone={statusTone(application.status)}>
+              {statusLabel(application.status)}
+            </Badge>
+          </li>
+          <li>
+            Demande :{' '}
+            <Badge tone={statusTone(application.request.status)}>
+              {statusLabel(application.request.status)}
+            </Badge>
+          </li>
           <li>
             Mission :{' '}
-            {application.mission
-              ? statusLabel(application.mission.status)
-              : 'Non créée'}
+            {application.mission ? (
+              <Badge tone={statusTone(application.mission.status)}>
+                {statusLabel(application.mission.status)}
+              </Badge>
+            ) : (
+              'Non créée'
+            )}
           </li>
           <li>
             Participation :{' '}
-            {application.participation
-              ? statusLabel(application.participation.status)
-              : '—'}
+            {application.participation ? (
+              <Badge tone={statusTone(application.participation.status)}>
+                {statusLabel(application.participation.status)}
+              </Badge>
+            ) : (
+              '—'
+            )}
           </li>
         </ul>
-      </div>
-      <div className="card">
-        <h2>Détail de l&apos;offre</h2>
+      </Card>
+
+      <Card title="Détail de l'offre">
         <p>{application.request.description}</p>
-        <p>
-          <strong>Adresse :</strong> {application.request.adresse}
+        <p className="ds-meta">
+          <span>Adresse : {application.request.adresse}</span>
+          <span>
+            Date : {formatDateTime(application.request.dateMission)}
+          </span>
+          <span>Durée : {application.request.dureeEstimee} min</span>
+          {application.message ? (
+            <span>Mon message : {application.message}</span>
+          ) : null}
+          {application.prixPropose !== null ? (
+            <span>Prix proposé : {application.prixPropose} €</span>
+          ) : null}
         </p>
-        <p>
-          <strong>Date :</strong>{' '}
-          {new Date(application.request.dateMission).toLocaleString('fr-FR')}
-        </p>
-        <p>
-          <strong>Durée :</strong> {application.request.dureeEstimee} min
-        </p>
-        {application.message ? (
-          <p>
-            <strong>Mon message :</strong> {application.message}
-          </p>
-        ) : null}
-        {application.prixPropose !== null ? (
-          <p>
-            <strong>Prix proposé :</strong> {application.prixPropose} €
-          </p>
-        ) : null}
-      </div>
-      <p>
-        <Link to="/applications/mine">Retour à mes candidatures</Link>
+      </Card>
+
+      <p className="ds-page-footer">
+        <Link to="/app/applications/mine">Retour à mes candidatures</Link>
       </p>
     </div>
   );
