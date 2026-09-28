@@ -2,6 +2,7 @@ import { FormEvent, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ApiClientError } from '@kolos/http-client';
 import { useAuth } from '../../app/providers/AuthProvider';
+import { Button, TextField } from '../../ui';
 
 export function LoginPage() {
   const { login } = useAuth();
@@ -36,31 +37,35 @@ export function LoginPage() {
 
   return (
     <div className="container">
+      <p className="ds-login-brand">Kolos</p>
       <h1>Connexion</h1>
+      <p className="ds-login-lead">
+        Accédez à votre espace demandeur ou aidant.
+      </p>
       <form onSubmit={handleSubmit}>
-        <label>
-          Email
-          <input
-            type="email"
-            value={email}
-            onChange={(event) => setEmail(event.target.value)}
-            required
-          />
-        </label>
-        <label>
-          Mot de passe
-          <input
-            type="password"
-            value={password}
-            onChange={(event) => setPassword(event.target.value)}
-            required
-            minLength={8}
-          />
-        </label>
+        <TextField
+          id="login-email"
+          label="Email"
+          type="email"
+          value={email}
+          onChange={(event) => setEmail(event.target.value)}
+          required
+          autoComplete="email"
+        />
+        <TextField
+          id="login-password"
+          label="Mot de passe"
+          type="password"
+          value={password}
+          onChange={(event) => setPassword(event.target.value)}
+          required
+          minLength={8}
+          autoComplete="current-password"
+        />
         {error ? <p className="error">{error}</p> : null}
-        <button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? 'Connexion...' : 'Se connecter'}
-        </button>
+        <Button type="submit" block disabled={isSubmitting}>
+          {isSubmitting ? 'Connexion…' : 'Se connecter'}
+        </Button>
       </form>
       <p>
         Pas de compte ? <Link to="/register">S&apos;inscrire</Link>
