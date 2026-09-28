@@ -178,6 +178,33 @@ describe('Marketplace (e2e)', () => {
     expect(response.body[0].status).toBe('PENDING');
   });
 
+  // JE-09 — ownership : même rôle demandeur, autre propriétaire → 403
+  it('JE-09: forbids other demandeur from deciding on application', async () => {
+    const other = await request(app.getHttpServer())
+      .post('/v1/auth/register')
+      .send({
+        email: `demandeur-je09-${suffix}@kolos.local`,
+        password: 'Password123',
+        firstName: 'Charlie',
+        lastName: 'Other',
+        role: 'demandeur',
+      })
+      .expect(201);
+
+    const otherToken = other.body.accessToken as string;
+
+    await request(app.getHttpServer())
+      .get(`/v1/requests/${publishedRequestId}/applications`)
+      .set('Authorization', `Bearer ${otherToken}`)
+      .expect(403);
+
+    await request(app.getHttpServer())
+      .post(`/v1/applications/${applicationId}/decision`)
+      .set('Authorization', `Bearer ${otherToken}`)
+      .send({ decision: 'ACCEPTED' })
+      .expect(403);
+  });
+
   it('accepts candidate and creates mission', async () => {
     const response = await request(app.getHttpServer())
       .post(`/v1/applications/${applicationId}/decision`)
