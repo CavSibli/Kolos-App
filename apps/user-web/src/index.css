@@ -1155,6 +1155,22 @@ a.ds-button--primary:hover {
   color: var(--kolos-color-muted, #666);
 }
 
+.admin-form {
+  display: grid;
+  gap: var(--kolos-space-3);
+}
+
+@media (min-width: 640px) {
+  .admin-form {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .admin-form .ds-button {
+    grid-column: 1 / -1;
+    justify-self: start;
+  }
+}
+
 .admin-shell__header-inner {
   display: flex;
   align-items: center;

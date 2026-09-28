@@ -97,6 +97,12 @@ import {
     GetCurrentUserUseCase,
     UpdateProfileUseCase,
   ],
-  exports: [REFRESH_TOKEN_REPOSITORY, CLOCK, USER_REPOSITORY],
+  exports: [
+    REFRESH_TOKEN_REPOSITORY,
+    CLOCK,
+    USER_REPOSITORY,
+    ROLE_REPOSITORY,
+    PASSWORD_HASHER,
+  ],
 })
 export class IdentityModule {}

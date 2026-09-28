@@ -30,6 +30,15 @@ export class UserOrmEntity {
   @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
   createdAt!: Date;
 
+  @Column({ name: 'banned_at', type: 'timestamptz', nullable: true })
+  bannedAt!: Date | null;
+
+  @Column({ name: 'ban_until', type: 'timestamptz', nullable: true })
+  banUntil!: Date | null;
+
+  @Column({ name: 'ban_reason', type: 'text', nullable: true })
+  banReason!: string | null;
+
   @ManyToMany(() => RoleOrmEntity, (role) => role.users, { eager: true })
   @JoinTable({
     name: 'user_roles',

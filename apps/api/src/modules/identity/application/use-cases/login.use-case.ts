@@ -1,11 +1,16 @@
-import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
+import { Inject, Injectable, UnauthorizedException, ForbiddenException } from '@nestjs/common';
 import { LoginCommand } from '../dto/login.command';
 import { AuthResult } from '../dto/auth.dto';
 import { UserRepository } from '../../domain/repositories/user.repository';
 import { PasswordHasherPort } from '../ports/password-hasher.port';
+import { ClockPort } from '../ports/clock.port';
 import { Email } from '../../domain/value-objects/email.vo';
 import { SessionService } from '../services/session.service';
-import { PASSWORD_HASHER, USER_REPOSITORY } from '../../identity.tokens';
+import {
+  CLOCK,
+  PASSWORD_HASHER,
+  USER_REPOSITORY,
+} from '../../identity.tokens';
 
 @Injectable()
 export class LoginUseCase {
@@ -14,6 +19,8 @@ export class LoginUseCase {
     private readonly userRepository: UserRepository,
     @Inject(PASSWORD_HASHER)
     private readonly passwordHasher: PasswordHasherPort,
+    @Inject(CLOCK)
+    private readonly clock: ClockPort,
     private readonly sessionService: SessionService,
   ) {}
 
@@ -32,6 +39,17 @@ export class LoginUseCase {
 
     if (!valid) {
       throw new UnauthorizedException('Invalid credentials');
+    }
+
+    const now = this.clock.now();
+    if (user.isBanned(now)) {
+      throw new ForbiddenException(
+        user.banReason?.trim() || 'Compte suspendu',
+      );
+    }
+
+    if (user.bannedAt && user.banUntil && user.banUntil.getTime() <= now.getTime()) {
+      await this.userRepository.save(user.unban());
     }
 
     return this.sessionService.createSession(user);

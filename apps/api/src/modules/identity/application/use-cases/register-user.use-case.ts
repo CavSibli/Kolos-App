@@ -63,6 +63,9 @@ export class RegisterUserUseCase {
       lastName: command.lastName.trim(),
       roles: [new Role({ id: roleEntity.id, name: roleEntity.name })],
       createdAt: this.clock.now(),
+      bannedAt: null,
+      banUntil: null,
+      banReason: null,
     });
 
     const saved = await this.userRepository.save(user);

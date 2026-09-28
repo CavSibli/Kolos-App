@@ -210,6 +210,46 @@ export interface AdminStatsResponse {
   messagesTotal: number;
 }
 
+export interface AdminUserResponse {
+  id: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  roles: Array<'demandeur' | 'aidant' | 'admin'>;
+  createdAt: string;
+  banned: boolean;
+  bannedAt: string | null;
+  banUntil: string | null;
+  banReason: string | null;
+}
+
+export interface PaginatedAdminUsersResponse {
+  items: AdminUserResponse[];
+  total: number;
+  page: number;
+  pageSize: number;
+}
+
+export interface CreateAdminUserBody {
+  email: string;
+  password: string;
+  firstName: string;
+  lastName: string;
+  role: 'demandeur' | 'aidant';
+}
+
+export interface UpdateAdminUserBody {
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+  roles?: Array<'demandeur' | 'aidant' | 'admin'>;
+}
+
+export interface BanAdminUserBody {
+  until?: string | null;
+  reason?: string;
+}
+
 export interface MissionMessageResponse {
   id: string;
   conversationId: string;
