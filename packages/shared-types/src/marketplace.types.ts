@@ -182,6 +182,24 @@ export interface PaginatedAdminReportsResponse {
   pageSize: number;
 }
 
+export type ModerationActionCode = 'MASK' | 'CLASSIFY' | 'DISMISS';
+
+export interface CreateAdminReportActionBody {
+  action: ModerationActionCode;
+  reason?: string;
+}
+
+export interface ModeratedReportActionResponse {
+  id: string;
+  reportId: number;
+  adminId: string;
+  action: string;
+  reason: string | null;
+  payload: Record<string, unknown> | null;
+  createdAt: string;
+  reportStatus: ReportStatusCode;
+}
+
 export interface MissionMessageResponse {
   id: string;
   conversationId: string;

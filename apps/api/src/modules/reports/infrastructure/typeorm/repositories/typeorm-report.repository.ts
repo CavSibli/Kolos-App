@@ -5,7 +5,10 @@ import {
   ReportListResult,
   ReportRepository,
 } from '../../../domain/repositories/report.repository';
-import { Report } from '../../../domain/entities/report.entity';
+import {
+  Report,
+  ReportStatusCode,
+} from '../../../domain/entities/report.entity';
 import { SignalementOrmEntity } from '../entities/signalement.orm-entity';
 import { ReportOrmMapper } from '../mappers/report.orm-mapper';
 import { TypeSignalementOrmEntity } from '@shared/reference-data/infrastructure/typeorm/entities/type-signalement.orm-entity';
@@ -24,6 +27,46 @@ export class TypeOrmReportRepository implements ReportRepository {
     @InjectRepository(PrioriteSignalementOrmEntity)
     private readonly prioriteRepo: Repository<PrioriteSignalementOrmEntity>,
   ) {}
+
+  async findById(id: number): Promise<Report | null> {
+    const entity = await this.signalementRepo.findOne({
+      where: { id },
+      relations: ['typeSignalement', 'statutSignalement', 'prioriteSignalement'],
+    });
+    return entity ? ReportOrmMapper.toDomain(entity) : null;
+  }
+
+  async updateStatus(
+    id: number,
+    statusCode: ReportStatusCode,
+    updatedAt: Date,
+  ): Promise<Report> {
+    const entity = await this.signalementRepo.findOne({ where: { id } });
+    if (!entity) {
+      throw new NotFoundException('Signalement introuvable');
+    }
+
+    const statutId = await this.resolveRefId(
+      this.statutRepo,
+      statusCode,
+      'statut signalement',
+    );
+
+    entity.statutSignalementId = statutId;
+    entity.dateMaj = updatedAt;
+    if (statusCode === 'RESOLVED' || statusCode === 'REJECTED') {
+      entity.dateResolution = updatedAt;
+    }
+
+    await this.signalementRepo.save(entity);
+
+    const reloaded = await this.signalementRepo.findOneOrFail({
+      where: { id },
+      relations: ['typeSignalement', 'statutSignalement', 'prioriteSignalement'],
+    });
+
+    return ReportOrmMapper.toDomain(reloaded);
+  }
 
   async listForAdmin(options: {
     page: number;

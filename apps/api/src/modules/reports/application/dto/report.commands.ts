@@ -42,3 +42,21 @@ export interface ListAdminReportsResult {
   page: number;
   pageSize: number;
 }
+
+export interface ModerateReportCommand {
+  reportId: number;
+  adminId: string;
+  action: string;
+  reason?: string | null;
+}
+
+export interface ModerateReportResult {
+  id: string;
+  reportId: number;
+  adminId: string;
+  action: string;
+  reason: string | null;
+  payload: Record<string, unknown> | null;
+  createdAt: string;
+  reportStatus: ReportStatusCode;
+}

@@ -1,12 +1,16 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ApiClientError } from '@kolos/http-client';
-import type { AdminReportListItem } from '@kolos/shared-types';
+import type {
+  AdminReportListItem,
+  ModerationActionCode,
+} from '@kolos/shared-types';
 import { useMarketplace } from '../../app/hooks/useMarketplace';
 import { PageMeta } from '../../app/seo/PageMeta';
 import { formatDateTime, statusLabel, statusTone } from '../../lib/status';
 import {
   Badge,
+  Button,
   Card,
   EmptyState,
   ErrorState,
@@ -22,19 +26,31 @@ const MOTIF_LABELS: Record<string, string> = {
   OTHER: 'Autre',
 };
 
+const ACTIONS: { code: ModerationActionCode; label: string; variant: 'primary' | 'secondary' | 'danger' }[] = [
+  { code: 'CLASSIFY', label: 'Classer', variant: 'primary' },
+  { code: 'MASK', label: 'Masquer', variant: 'secondary' },
+  { code: 'DISMISS', label: 'Rejeter', variant: 'danger' },
+];
+
 export function AdminHomePage() {
-  const { listAdminReports } = useMarketplace();
+  const { listAdminReports, postAdminReportAction } = useMarketplace();
   const [reports, setReports] = useState<AdminReportListItem[]>([]);
   const [total, setTotal] = useState(0);
   const [error, setError] = useState<string | null>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [busyReportId, setBusyReportId] = useState<number | null>(null);
+
+  const reload = useCallback(async () => {
+    const result = await listAdminReports({ page: 1, pageSize: 50 });
+    setReports(result.items);
+    setTotal(result.total);
+  }, [listAdminReports]);
 
   useEffect(() => {
     async function load() {
       try {
-        const result = await listAdminReports({ page: 1, pageSize: 50 });
-        setReports(result.items);
-        setTotal(result.total);
+        await reload();
       } catch (err) {
         if (err instanceof ApiClientError) {
           setError(
@@ -51,7 +67,34 @@ export function AdminHomePage() {
     }
 
     void load();
-  }, [listAdminReports]);
+  }, [reload]);
+
+  async function handleAction(
+    reportId: number,
+    action: ModerationActionCode,
+  ) {
+    setActionError(null);
+    setBusyReportId(reportId);
+    try {
+      await postAdminReportAction(reportId, {
+        action,
+        reason: `Action admin ${action}`,
+      });
+      await reload();
+    } catch (err) {
+      if (err instanceof ApiClientError) {
+        setActionError(
+          typeof err.body.message === 'string'
+            ? err.body.message
+            : 'Action impossible',
+        );
+      } else {
+        setActionError('Action impossible');
+      }
+    } finally {
+      setBusyReportId(null);
+    }
+  }
 
   return (
     <div className="container">
@@ -63,12 +106,13 @@ export function AdminHomePage() {
       />
       <h1>Signalements</h1>
       <p className="ds-page-lead">
-        Consultez les signalements Postgres. Les actions de modération (Mongo)
-        arriveront en T14.
+        Une action (classer / masquer / rejeter) écrit dans Mongo
+        <code> moderation_actions</code> et met à jour le statut Postgres.
       </p>
 
       {isLoading ? <LoadingState /> : null}
       {error ? <ErrorState message={error} /> : null}
+      {actionError ? <ErrorState message={actionError} /> : null}
 
       {!isLoading && !error ? (
         <p className="ds-meta">{total} signalement(s)</p>
@@ -95,6 +139,20 @@ export function AdminHomePage() {
               <span>Auteur : {report.auteurId}</span>
               <span>{formatDateTime(report.createdAt)}</span>
             </p>
+            {report.status === 'OPEN' || report.status === 'IN_REVIEW' ? (
+              <div className="ds-actions">
+                {ACTIONS.map((item) => (
+                  <Button
+                    key={item.code}
+                    variant={item.variant}
+                    disabled={busyReportId === report.id}
+                    onClick={() => void handleAction(report.id, item.code)}
+                  >
+                    {item.label}
+                  </Button>
+                ))}
+              </div>
+            ) : null}
           </Card>
         ))}
       </div>

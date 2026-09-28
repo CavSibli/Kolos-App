@@ -1,5 +1,12 @@
 import { Type } from 'class-transformer';
-import { IsIn, IsInt, IsOptional, IsString, Min, MinLength } from 'class-validator';
+import {
+  IsIn,
+  IsInt,
+  IsOptional,
+  IsString,
+  Min,
+  MinLength,
+} from 'class-validator';
 import type { ReportMotifCode } from '../../../domain/entities/report.entity';
 
 export class CreateReportDto {
@@ -30,4 +37,13 @@ export class ListAdminReportsQueryDto {
   @IsInt()
   @Min(1)
   pageSize?: number;
+}
+
+export class CreateAdminReportActionDto {
+  @IsIn(['MASK', 'CLASSIFY', 'DISMISS'])
+  action!: 'MASK' | 'CLASSIFY' | 'DISMISS';
+
+  @IsOptional()
+  @IsString()
+  reason?: string;
 }

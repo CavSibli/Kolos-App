@@ -8,9 +8,11 @@ import type {
   CandidateResponse,
   CreateReportBody,
   CreateReportResponse,
+  CreateAdminReportActionBody,
   DecideApplicationBody,
   DecideApplicationResponse,
   MissionMessageResponse,
+  ModeratedReportActionResponse,
   PaginatedAdminReportsResponse,
   PaginatedApplicationsWithContextResponse,
   PaginatedPublishedRequestsResponse,
@@ -130,6 +132,16 @@ export class MarketplaceClient {
     const query = search.toString();
     return this.api.get<PaginatedAdminReportsResponse>(
       `/admin/reports${query ? `?${query}` : ''}`,
+    );
+  }
+
+  postAdminReportAction(
+    reportId: number,
+    body: CreateAdminReportActionBody,
+  ): Promise<ModeratedReportActionResponse> {
+    return this.api.post<ModeratedReportActionResponse>(
+      `/admin/reports/${reportId}/actions`,
+      body,
     );
   }
 

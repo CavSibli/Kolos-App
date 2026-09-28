@@ -1,4 +1,5 @@
 import { Report } from '../entities/report.entity';
+import type { ReportStatusCode } from '../entities/report.entity';
 
 export interface ReportListResult {
   items: Report[];
@@ -9,6 +10,12 @@ export interface ReportListResult {
 
 export interface ReportRepository {
   save(report: Report): Promise<Report>;
+  findById(id: number): Promise<Report | null>;
+  updateStatus(
+    id: number,
+    statusCode: ReportStatusCode,
+    updatedAt: Date,
+  ): Promise<Report>;
   listForAdmin(options: {
     page: number;
     pageSize: number;
