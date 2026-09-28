@@ -1,0 +1,73 @@
+{
+  "messages": [
+    {
+      "_id": {
+        "$oid": "6aba8a208755609af94a98eb"
+      },
+      "conversationId": {
+        "$oid": "6aba8a208755609af94a98e7"
+      },
+      "missionId": 1,
+      "userId": "00000000-0000-4000-8000-000000000002",
+      "body": "Bonjour, je confirme mon arriv├®e vers 14h devant le magasin.",
+      "createdAt": {
+        "$date": "2026-09-28T15:39:12.491Z"
+      },
+      "__v": 0
+    },
+    {
+      "_id": {
+        "$oid": "6aba8a208755609af94a98ea"
+      },
+      "conversationId": {
+        "$oid": "6aba8a208755609af94a98e7"
+      },
+      "missionId": 1,
+      "userId": "00000000-0000-4000-8000-000000000001",
+      "body": "Bonjour, merci dÔÇÖavoir accept├® la mission courses.",
+      "createdAt": {
+        "$date": "2026-09-28T15:39:12.491Z"
+      },
+      "__v": 0
+    }
+  ],
+  "moderation_actions": [
+    {
+      "_id": {
+        "$oid": "6ababd45d7dc6af57af2352a"
+      },
+      "reportId": 1,
+      "adminId": "00000000-0000-4000-8000-000000000099",
+      "action": "CLASSIFY",
+      "reason": "D├®mo T12 ÔÇö signalement class├® sans suite UI admin (T13).",
+      "payload": {
+        "source": "seed:mongo",
+        "previousStatus": "OPEN",
+        "nextStatus": "RESOLVED"
+      },
+      "createdAt": {
+        "$date": "2026-09-28T19:17:25.601Z"
+      },
+      "__v": 0
+    }
+  ],
+  "conversations": [
+    {
+      "_id": {
+        "$oid": "6aba8a208755609af94a98e7"
+      },
+      "missionId": 1,
+      "participantIds": [
+        "00000000-0000-4000-8000-000000000001",
+        "00000000-0000-4000-8000-000000000002"
+      ],
+      "createdAt": {
+        "$date": "2026-09-28T15:39:12.309Z"
+      },
+      "updatedAt": {
+        "$date": "2026-09-28T15:39:12.309Z"
+      },
+      "__v": 0
+    }
+  ]
+}
