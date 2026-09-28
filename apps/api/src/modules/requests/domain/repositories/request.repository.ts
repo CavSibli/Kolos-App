@@ -32,4 +32,9 @@ export interface RequestRepository {
     page: number;
     pageSize: number;
   }): Promise<PageResult<RequestWithStats>>;
+  listForAdmin(options: {
+    page: number;
+    pageSize: number;
+    status?: string;
+  }): Promise<PageResult<RequestWithStats>>;
 }

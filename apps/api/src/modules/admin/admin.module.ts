@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { MongooseModule } from '@nestjs/mongoose';
 import { IdentityModule } from '@modules/identity/identity.module';
+import { RequestsModule } from '@modules/requests/requests.module';
 import { UserOrmEntity } from '@modules/identity/infrastructure/typeorm/entities/user.orm-entity';
 import { DemandeOrmEntity } from '@modules/requests/infrastructure/typeorm/entities/demande.orm-entity';
 import { MissionOrmEntity } from '@modules/missions/infrastructure/typeorm/entities/mission.orm-entity';
@@ -19,12 +20,21 @@ import {
   UnbanAdminUserUseCase,
   UpdateAdminUserUseCase,
 } from './application/use-cases/admin-users.use-cases';
+import {
+  CancelAdminRequestUseCase,
+  CreateAdminRequestUseCase,
+  GetAdminRequestUseCase,
+  ListAdminRequestsUseCase,
+  UpdateAdminRequestUseCase,
+} from './application/use-cases/admin-requests.use-cases';
 import { AdminStatsController } from './presentation/http/controllers/admin-stats.controller';
 import { AdminUsersController } from './presentation/http/controllers/admin-users.controller';
+import { AdminRequestsController } from './presentation/http/controllers/admin-requests.controller';
 
 @Module({
   imports: [
     IdentityModule,
+    RequestsModule,
     TypeOrmModule.forFeature([
       UserOrmEntity,
       DemandeOrmEntity,
@@ -33,7 +43,11 @@ import { AdminUsersController } from './presentation/http/controllers/admin-user
     ]),
     MongooseModule.forFeature([{ name: Message.name, schema: MessageSchema }]),
   ],
-  controllers: [AdminStatsController, AdminUsersController],
+  controllers: [
+    AdminStatsController,
+    AdminUsersController,
+    AdminRequestsController,
+  ],
   providers: [
     GetAdminStatsUseCase,
     ListAdminUsersUseCase,
@@ -42,6 +56,11 @@ import { AdminUsersController } from './presentation/http/controllers/admin-user
     UpdateAdminUserUseCase,
     BanAdminUserUseCase,
     UnbanAdminUserUseCase,
+    ListAdminRequestsUseCase,
+    GetAdminRequestUseCase,
+    CreateAdminRequestUseCase,
+    UpdateAdminRequestUseCase,
+    CancelAdminRequestUseCase,
   ],
 })
 export class AdminModule {}

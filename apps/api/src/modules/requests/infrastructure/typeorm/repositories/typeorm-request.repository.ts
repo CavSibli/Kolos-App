@@ -163,4 +163,62 @@ export class TypeOrmRequestRepository implements RequestRepository {
       pageSize: options.pageSize,
     };
   }
+
+  async listForAdmin(options: {
+    page: number;
+    pageSize: number;
+    status?: string;
+  }): Promise<PageResult<RequestWithStats>> {
+    const qb = this.demandeRepo
+      .createQueryBuilder('d')
+      .innerJoinAndSelect('d.statutDemande', 's')
+      .orderBy('d.dateCreation', 'DESC')
+      .skip((options.page - 1) * options.pageSize)
+      .take(options.pageSize);
+
+    if (options.status) {
+      qb.andWhere('s.code = :status', { status: options.status });
+    }
+
+    const [entities, total] = await qb.getManyAndCount();
+
+    const pendingId = await this.statusLookup.getCandidatureStatusId('PENDING');
+    const acceptedId =
+      await this.statusLookup.getCandidatureStatusId('ACCEPTED');
+
+    const items: RequestWithStats[] = [];
+    for (const entity of entities) {
+      const pendingApplications = await this.demandeRepo.manager.count(
+        CandidatureOrmEntity,
+        { where: { demandeId: entity.id, statutCandidatureId: pendingId } },
+      );
+      const acceptedApplications = await this.demandeRepo.manager.count(
+        CandidatureOrmEntity,
+        { where: { demandeId: entity.id, statutCandidatureId: acceptedId } },
+      );
+      const missionEntity = await this.demandeRepo.manager.findOne(
+        MissionOrmEntity,
+        {
+          where: { demandeId: entity.id },
+          relations: ['statutMission'],
+        },
+      );
+
+      items.push({
+        request: RequestOrmMapper.toDomain(entity),
+        pendingApplications,
+        acceptedApplications,
+        mission: missionEntity
+          ? MissionOrmMapper.toDomain(missionEntity)
+          : null,
+      });
+    }
+
+    return {
+      items,
+      total,
+      page: options.page,
+      pageSize: options.pageSize,
+    };
+  }
 }

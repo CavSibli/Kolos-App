@@ -17,9 +17,12 @@ import type {
   AdminUserResponse,
   BanAdminUserBody,
   CreateAdminUserBody,
+  CreateAdminRequestBody,
+  UpdateAdminRequestBody,
   UpdateAdminUserBody,
   PaginatedAdminReportsResponse,
   PaginatedAdminUsersResponse,
+  PaginatedAdminRequestsResponse,
   PaginatedApplicationsWithContextResponse,
   PaginatedPublishedRequestsResponse,
   PaginatedRequestsWithStatsResponse,
@@ -196,6 +199,40 @@ export class MarketplaceClient {
 
   unbanAdminUser(id: string): Promise<AdminUserResponse> {
     return this.api.post<AdminUserResponse>(`/admin/users/${id}/unban`);
+  }
+
+  listAdminRequests(params?: {
+    page?: number;
+    pageSize?: number;
+    status?: string;
+  }): Promise<PaginatedAdminRequestsResponse> {
+    const search = new URLSearchParams();
+    if (params?.page != null) search.set('page', String(params.page));
+    if (params?.pageSize != null) {
+      search.set('pageSize', String(params.pageSize));
+    }
+    if (params?.status) search.set('status', params.status);
+    const query = search.toString();
+    return this.api.get<PaginatedAdminRequestsResponse>(
+      `/admin/requests${query ? `?${query}` : ''}`,
+    );
+  }
+
+  createAdminRequest(
+    body: CreateAdminRequestBody,
+  ): Promise<RequestResponse> {
+    return this.api.post<RequestResponse>('/admin/requests', body);
+  }
+
+  updateAdminRequest(
+    id: number,
+    body: UpdateAdminRequestBody,
+  ): Promise<RequestResponse> {
+    return this.api.patch<RequestResponse>(`/admin/requests/${id}`, body);
+  }
+
+  cancelAdminRequest(id: number): Promise<{ id: number; status: string; titre: string }> {
+    return this.api.post(`/admin/requests/${id}/cancel`);
   }
 
   listMissionMessages(missionId: number): Promise<MissionMessageResponse[]> {

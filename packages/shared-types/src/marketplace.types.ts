@@ -250,6 +250,53 @@ export interface BanAdminUserBody {
   reason?: string;
 }
 
+export interface AdminRequestListItem {
+  id: number;
+  demandeurId: string;
+  status: string;
+  titre: string;
+  description: string;
+  adresse: string;
+  dateMission: string;
+  dureeEstimee: number;
+  nbAidantsRequis: number;
+  budgetEstime: number | null;
+  pendingApplications: number;
+  acceptedApplications: number;
+  mission: { id: number; status: string } | null;
+  createdAt: string;
+}
+
+export interface PaginatedAdminRequestsResponse {
+  items: AdminRequestListItem[];
+  total: number;
+  page: number;
+  pageSize: number;
+}
+
+export interface CreateAdminRequestBody {
+  demandeurId: string;
+  titre: string;
+  description: string;
+  adresse: string;
+  dateMission: string;
+  dureeEstimee: number;
+  nbAidantsRequis: number;
+  budgetEstime?: number | null;
+  contraintesPhysiques?: string | null;
+}
+
+export interface UpdateAdminRequestBody {
+  titre?: string;
+  description?: string;
+  adresse?: string;
+  dateMission?: string;
+  dureeEstimee?: number;
+  nbAidantsRequis?: number;
+  budgetEstime?: number | null;
+  contraintesPhysiques?: string | null;
+}
+
 export interface MissionMessageResponse {
   id: string;
   conversationId: string;

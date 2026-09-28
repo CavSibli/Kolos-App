@@ -144,4 +144,37 @@ export class Request extends Entity<RequestProps> {
       updatedAt: now,
     });
   }
+
+  withDetails(
+    input: {
+      titre?: string;
+      description?: string;
+      adresse?: string;
+      dateMission?: Date;
+      dureeEstimee?: number;
+      nbAidantsRequis?: number;
+      budgetEstime?: number | null;
+      contraintesPhysiques?: string | null;
+    },
+    now: Date,
+  ): Request {
+    return new Request({
+      ...this.getProps(),
+      titre: input.titre?.trim() ?? this.getProps().titre,
+      description: input.description?.trim() ?? this.getProps().description,
+      adresse: input.adresse?.trim() ?? this.getProps().adresse,
+      dateMission: input.dateMission ?? this.getProps().dateMission,
+      dureeEstimee: input.dureeEstimee ?? this.getProps().dureeEstimee,
+      nbAidantsRequis: input.nbAidantsRequis ?? this.getProps().nbAidantsRequis,
+      budgetEstime:
+        input.budgetEstime !== undefined
+          ? input.budgetEstime
+          : this.getProps().budgetEstime,
+      contraintesPhysiques:
+        input.contraintesPhysiques !== undefined
+          ? input.contraintesPhysiques
+          : this.getProps().contraintesPhysiques,
+      updatedAt: now,
+    });
+  }
 }
