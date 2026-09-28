@@ -99,7 +99,7 @@ Autres contraintes documentées dans le README : **pnpm 9+**, Docker Compose pou
 | Mongo connexion | `MongoModule` + health | inchangé |
 | Mongo métier | Absent | Messagerie (T11) + `moderation_actions` (T12) + écriture admin (T14) |
 | Conception MPD | Messages encore en tables PG (Semaine 1) | T07 : hors relationnel / Mongo |
-| UML UC / séquences | Partiel Semaine 1 | T08 : messagerie, admin, signalement |
+| UML UC / séquences | Amendement T08 dans `docs/uml/` | Messagerie Mongo, admin, signalement ; hors MVP documenté |
 
 ---
 
