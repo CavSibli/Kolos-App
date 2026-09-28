@@ -12,8 +12,10 @@
     "docker:down": "docker compose down"
   },
   "engines": {
-    "node": ">=20"
+    "node": ">=20",
+    "pnpm": ">=9"
   },
+  "packageManager": "pnpm@9.15.9",
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^8.0.0",
     "@typescript-eslint/parser": "^8.0.0",
