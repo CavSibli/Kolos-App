@@ -6,13 +6,16 @@ import { useMarketplace } from '../../app/hooks/useMarketplace';
 import { PageMeta } from '../../app/seo/PageMeta';
 import { formatDateTime, statusLabel, statusTone } from '../../lib/status';
 import { Badge, Card, ErrorState, LoadingState } from '../../ui';
+import { ReportMissionForm } from '../missions/ReportMissionForm';
 
 export function ApplicationDetailPage() {
   const { id } = useParams();
   const { getMyApplication } = useMarketplace();
   const [application, setApplication] =
     useState<ApplicationWithContextResponse | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [formError, setFormError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -26,7 +29,7 @@ export function ApplicationDetailPage() {
         setApplication(result);
       } catch (err) {
         if (err instanceof ApiClientError) {
-          setError(
+          setLoadError(
             typeof err.body.message === 'string'
               ? err.body.message
               : 'Chargement impossible',
@@ -48,11 +51,11 @@ export function ApplicationDetailPage() {
     );
   }
 
-  if (error || !application) {
+  if (loadError || !application) {
     return (
       <div className="container">
         <ErrorState
-          message={error ?? 'Candidature introuvable'}
+          message={loadError ?? 'Candidature introuvable'}
           action={
             <Link
               to="/app/applications/mine"
@@ -76,8 +79,21 @@ export function ApplicationDetailPage() {
       />
       <h1>{application.request.titre}</h1>
       <p className="ds-page-lead">
-        Statuts de votre candidature, de la demande et de la mission.
+        {application.mission?.status === 'CONFIRMED'
+          ? 'Une action primaire : signaler un problème sur la mission si besoin.'
+          : 'Statuts de votre candidature, de la demande et de la mission.'}
       </p>
+
+      {formError ? (
+        <p className="ds-form-error" role="alert">
+          {formError}
+        </p>
+      ) : null}
+      {success ? (
+        <p className="ds-form-success" role="status">
+          {success}
+        </p>
+      ) : null}
 
       <Card title="Statuts">
         <ul className="ds-status-list">
@@ -132,6 +148,22 @@ export function ApplicationDetailPage() {
           ) : null}
         </p>
       </Card>
+
+      {application.mission?.status === 'CONFIRMED' ? (
+        <Card title="Signaler un problème">
+          <ReportMissionForm
+            missionId={application.mission.id}
+            onSuccess={(message) => {
+              setSuccess(message);
+              setFormError(null);
+            }}
+            onError={(message) => {
+              setFormError(message);
+              setSuccess(null);
+            }}
+          />
+        </Card>
+      ) : null}
 
       <p className="ds-page-footer">
         <Link to="/app/applications/mine">Retour à mes candidatures</Link>

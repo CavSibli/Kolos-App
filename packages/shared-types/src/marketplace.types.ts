@@ -138,6 +138,28 @@ export interface AuthorizePaymentResponse {
   montantTotal: number;
 }
 
+export type ReportMotifCode =
+  | 'NO_SHOW'
+  | 'DELAY'
+  | 'NOT_PERFORMED'
+  | 'BEHAVIOUR'
+  | 'PAYMENT'
+  | 'OTHER';
+
+export interface CreateReportBody {
+  motif: ReportMotifCode;
+  description: string;
+}
+
+export interface CreateReportResponse {
+  id: number;
+  missionId: number;
+  motif: ReportMotifCode;
+  status: string;
+  description: string;
+  createdAt: string;
+}
+
 export interface ApplyToRequestBody {
   demandeId: number;
   message?: string;
