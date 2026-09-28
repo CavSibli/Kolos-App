@@ -27,6 +27,14 @@ export class TypeOrmMissionRepository implements MissionRepository {
     private readonly dataSource: DataSource,
   ) {}
 
+  async findById(id: number): Promise<Mission | null> {
+    const entity = await this.missionRepo.findOne({
+      where: { id },
+      relations: ['statutMission'],
+    });
+    return entity ? MissionOrmMapper.toDomain(entity) : null;
+  }
+
   async findByDemandeId(demandeId: number): Promise<Mission | null> {
     const entity = await this.missionRepo.findOne({
       where: { demandeId },
@@ -44,6 +52,28 @@ export class TypeOrmMissionRepository implements MissionRepository {
       relations: ['statutParticipation'],
     });
     return entity ? ParticipationOrmMapper.toDomain(entity) : null;
+  }
+
+  async save(mission: Mission): Promise<Mission> {
+    if (mission.id === undefined) {
+      throw new Error('Cannot save mission without id');
+    }
+
+    const statutMissionId = await this.statusLookup.getMissionStatusId(
+      mission.statusCode,
+    );
+
+    await this.missionRepo.update(mission.id, {
+      statutMissionId,
+      dateMaj: mission.updatedAt,
+    });
+
+    const reloaded = await this.missionRepo.findOneOrFail({
+      where: { id: mission.id },
+      relations: ['statutMission'],
+    });
+
+    return MissionOrmMapper.toDomain(reloaded);
   }
 
   async createWithParticipants(

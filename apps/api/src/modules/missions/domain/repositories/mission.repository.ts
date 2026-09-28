@@ -14,11 +14,13 @@ export interface CreateMissionWithParticipantsResult {
 }
 
 export interface MissionRepository {
+  findById(id: number): Promise<Mission | null>;
   findByDemandeId(demandeId: number): Promise<Mission | null>;
   findParticipationByMissionAndAidant(
     missionId: number,
     aidantId: string,
   ): Promise<Participation | null>;
+  save(mission: Mission): Promise<Mission>;
   createWithParticipants(
     input: CreateMissionWithParticipantsInput,
   ): Promise<CreateMissionWithParticipantsResult>;

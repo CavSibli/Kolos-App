@@ -16,14 +16,19 @@ import {
 
 export function RequestCandidatesPage() {
   const { id } = useParams();
-  const { getRequestDetail, listRequestCandidates, decideApplication } =
-    useMarketplace();
+  const {
+    getRequestDetail,
+    listRequestCandidates,
+    decideApplication,
+    authorizePayment,
+  } = useMarketplace();
   const [request, setRequest] = useState<RequestWithStatsResponse | null>(null);
   const [candidates, setCandidates] = useState<CandidateResponse[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [processingId, setProcessingId] = useState<number | null>(null);
+  const [isPaying, setIsPaying] = useState(false);
 
   async function load() {
     if (!id) {
@@ -88,6 +93,34 @@ export function RequestCandidatesPage() {
     }
   }
 
+  async function handleSimulatePayment() {
+    if (!request?.mission) {
+      return;
+    }
+
+    setIsPaying(true);
+    setError(null);
+    setSuccess(null);
+
+    try {
+      const result = await authorizePayment(request.mission.id);
+      setSuccess(
+        `Paiement simulé — mission ${statusLabel(result.status)} (${result.montantTotal} €)`,
+      );
+      await load();
+    } catch (err) {
+      if (err instanceof ApiClientError) {
+        setError(
+          typeof err.body.message === 'string'
+            ? err.body.message
+            : 'Paiement simulé impossible',
+        );
+      }
+    } finally {
+      setIsPaying(false);
+    }
+  }
+
   if (isLoading) {
     return (
       <div className="container">
@@ -124,7 +157,9 @@ export function RequestCandidatesPage() {
       />
       <h1>{request.titre}</h1>
       <p className="ds-page-lead">
-        Une action primaire : accepter un candidat pour créer la mission.
+        {request.mission?.status === 'AWAITING_PAYMENT'
+          ? 'Une action primaire : simuler le paiement pour confirmer la mission.'
+          : 'Une action primaire : accepter un candidat pour créer la mission.'}
       </p>
 
       <Card muted>
@@ -147,6 +182,17 @@ export function RequestCandidatesPage() {
             </span>
           ) : null}
         </p>
+        {request.mission?.status === 'AWAITING_PAYMENT' ? (
+          <div className="ds-actions">
+            <Button
+              type="button"
+              disabled={isPaying}
+              onClick={() => void handleSimulatePayment()}
+            >
+              {isPaying ? 'Simulation…' : 'Simuler paiement'}
+            </Button>
+          </div>
+        ) : null}
       </Card>
 
       {error ? (
