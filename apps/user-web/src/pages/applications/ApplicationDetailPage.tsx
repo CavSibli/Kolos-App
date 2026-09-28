@@ -150,19 +150,34 @@ export function ApplicationDetailPage() {
       </Card>
 
       {application.mission?.status === 'CONFIRMED' ? (
-        <Card title="Signaler un problème">
-          <ReportMissionForm
-            missionId={application.mission.id}
-            onSuccess={(message) => {
-              setSuccess(message);
-              setFormError(null);
-            }}
-            onError={(message) => {
-              setFormError(message);
-              setSuccess(null);
-            }}
-          />
-        </Card>
+        <>
+          <Card title="Messagerie">
+            <p className="ds-page-lead">
+              Échangez avec le demandeur de la mission.
+            </p>
+            <div className="ds-actions">
+              <Link
+                to={`/app/missions/${application.mission.id}/messages`}
+                className="ds-button"
+              >
+                Ouvrir la messagerie
+              </Link>
+            </div>
+          </Card>
+          <Card title="Signaler un problème">
+            <ReportMissionForm
+              missionId={application.mission.id}
+              onSuccess={(message) => {
+                setSuccess(message);
+                setFormError(null);
+              }}
+              onError={(message) => {
+                setFormError(message);
+                setSuccess(null);
+              }}
+            />
+          </Card>
+        </>
       ) : null}
 
       <p className="ds-page-footer">

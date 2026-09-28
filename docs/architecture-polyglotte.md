@@ -95,10 +95,10 @@ Autres contraintes documentées dans le README : **pnpm 9+**, Docker Compose pou
 
 | Couche | Aujourd’hui | Cible Option C |
 |--------|-------------|----------------|
-| Postgres marketplace | Opérationnel (parcours jusqu’à `AWAITING_PAYMENT`) | + mock paiement (T09) + signalement (T10) |
+| Postgres marketplace | Opérationnel (jusqu’à mock paiement + signalement) | + admin signalements (T13–T14) |
 | Mongo connexion | `MongoModule` + health | inchangé |
-| Mongo métier | Absent | Messagerie (T11) + `moderation_actions` (T12) + écriture admin (T14) |
-| Conception MPD | Messages encore en tables PG (Semaine 1) | T07 : hors relationnel / Mongo |
+| Mongo métier | Messagerie Conversations/Messages (T11) | + `moderation_actions` (T12) + écriture admin (T14) |
+| Conception MPD | Messagerie hors PG (T07) | Option C tenue |
 | UML UC / séquences | Amendement T08 dans `docs/uml/` | Messagerie Mongo, admin, signalement ; hors MVP documenté |
 
 ---
@@ -109,4 +109,5 @@ Autres contraintes documentées dans le README : **pnpm 9+**, Docker Compose pou
 - Périmètre produit : `ce_qu'il_reste_à_faire.md` §2 Option C  
 - MPD Semaine 1 : `Kolos Semaine 1 - Conception/MCD MLD et MPD/`  
 - Code : `apps/api` (Nest Onion), `apps/user-web` (React), `docker-compose.yml`
+- Messagerie Mongo (T11) : `docs/messaging-mongo.md`
 )

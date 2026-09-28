@@ -31,6 +31,8 @@ export function useMarketplace() {
       decideApplication: client.decideApplication.bind(client),
       authorizePayment: client.authorizePayment.bind(client),
       createReport: client.createReport.bind(client),
+      listMissionMessages: client.listMissionMessages.bind(client),
+      postMissionMessage: client.postMissionMessage.bind(client),
     }),
     [client],
   );

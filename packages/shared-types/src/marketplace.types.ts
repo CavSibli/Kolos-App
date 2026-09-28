@@ -160,6 +160,19 @@ export interface CreateReportResponse {
   createdAt: string;
 }
 
+export interface MissionMessageResponse {
+  id: string;
+  conversationId: string;
+  missionId: number;
+  userId: string;
+  body: string;
+  createdAt: string;
+}
+
+export interface PostMissionMessageBody {
+  body: string;
+}
+
 export interface ApplyToRequestBody {
   demandeId: number;
   message?: string;

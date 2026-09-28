@@ -54,6 +54,16 @@ export class TypeOrmMissionRepository implements MissionRepository {
     return entity ? ParticipationOrmMapper.toDomain(entity) : null;
   }
 
+  async findParticipationsByMissionId(
+    missionId: number,
+  ): Promise<Participation[]> {
+    const entities = await this.participationRepo.find({
+      where: { missionId },
+      relations: ['statutParticipation'],
+    });
+    return entities.map((entity) => ParticipationOrmMapper.toDomain(entity));
+  }
+
   async save(mission: Mission): Promise<Mission> {
     if (mission.id === undefined) {
       throw new Error('Cannot save mission without id');

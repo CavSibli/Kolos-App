@@ -10,9 +10,11 @@ import type {
   CreateReportResponse,
   DecideApplicationBody,
   DecideApplicationResponse,
+  MissionMessageResponse,
   PaginatedApplicationsWithContextResponse,
   PaginatedPublishedRequestsResponse,
   PaginatedRequestsWithStatsResponse,
+  PostMissionMessageBody,
   PublishRequestBody,
   RequestResponse,
   RequestWithStatsResponse,
@@ -111,6 +113,22 @@ export class MarketplaceClient {
   ): Promise<CreateReportResponse> {
     return this.api.post<CreateReportResponse>(
       `/missions/${missionId}/reports`,
+      body,
+    );
+  }
+
+  listMissionMessages(missionId: number): Promise<MissionMessageResponse[]> {
+    return this.api.get<MissionMessageResponse[]>(
+      `/missions/${missionId}/messages`,
+    );
+  }
+
+  postMissionMessage(
+    missionId: number,
+    body: PostMissionMessageBody,
+  ): Promise<MissionMessageResponse> {
+    return this.api.post<MissionMessageResponse>(
+      `/missions/${missionId}/messages`,
       body,
     );
   }

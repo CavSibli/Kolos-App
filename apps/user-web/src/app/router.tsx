@@ -20,6 +20,7 @@ import { MyRequestsPage } from '../pages/requests/MyRequestsPage';
 import { RequestCandidatesPage } from '../pages/requests/RequestCandidatesPage';
 import { MyApplicationsPage } from '../pages/applications/MyApplicationsPage';
 import { ApplicationDetailPage } from '../pages/applications/ApplicationDetailPage';
+import { MissionMessagesPage } from '../pages/missions/MissionMessagesPage';
 import { AdminHomePage } from '../pages/admin/AdminHomePage';
 import { NotFoundPage } from '../pages/errors/NotFoundPage';
 
@@ -180,6 +181,14 @@ export function AppRouter() {
           element={
             <RoleGuard roles={['aidant']}>
               <MyApplicationsPage />
+            </RoleGuard>
+          }
+        />
+        <Route
+          path="missions/:missionId/messages"
+          element={
+            <RoleGuard roles={['demandeur', 'aidant']}>
+              <MissionMessagesPage />
             </RoleGuard>
           }
         />

@@ -210,19 +210,34 @@ export function RequestCandidatesPage() {
       ) : null}
 
       {request.mission?.status === 'CONFIRMED' ? (
-        <Card title="Signaler un problème">
-          <ReportMissionForm
-            missionId={request.mission.id}
-            onSuccess={(message) => {
-              setSuccess(message);
-              setError(null);
-            }}
-            onError={(message) => {
-              setError(message);
-              setSuccess(null);
-            }}
-          />
-        </Card>
+        <>
+          <Card title="Messagerie">
+            <p className="ds-page-lead">
+              Échangez avec les aidants de la mission.
+            </p>
+            <div className="ds-actions">
+              <Link
+                to={`/app/missions/${request.mission.id}/messages`}
+                className="ds-button"
+              >
+                Ouvrir la messagerie
+              </Link>
+            </div>
+          </Card>
+          <Card title="Signaler un problème">
+            <ReportMissionForm
+              missionId={request.mission.id}
+              onSuccess={(message) => {
+                setSuccess(message);
+                setError(null);
+              }}
+              onError={(message) => {
+                setError(message);
+                setSuccess(null);
+              }}
+            />
+          </Card>
+        </>
       ) : null}
 
       <h2>Candidats</h2>
