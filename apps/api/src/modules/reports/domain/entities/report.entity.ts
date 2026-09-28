@@ -86,4 +86,9 @@ export class Report extends Entity<ReportProps> {
   get updatedAt(): Date {
     return this.getProps().updatedAt;
   }
+
+  applyStatus(statusCode: ReportStatusCode, now: Date): void {
+    this.getProps().statusCode = statusCode;
+    this.getProps().updatedAt = now;
+  }
 }

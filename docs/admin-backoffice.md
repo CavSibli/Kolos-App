@@ -25,4 +25,4 @@ Connexion via `/login`, puis ouvrir `/admin` (lien « Admin » dans l’AppShell
 
 - Liste paginée des signalements **Postgres** (motif, statut, priorité, description, mission, auteur).
 - Design system Kolos (`AdminShell` + cards).
-- **Pas** d’action de modération (écriture Mongo `moderation_actions` = **T14**).
+- Actions de modération (Mongo + maj statut) : **T14** — `docs/admin-moderation-polyglotte.md`.
