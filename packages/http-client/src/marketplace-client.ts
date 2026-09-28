@@ -13,6 +13,7 @@ import type {
   DecideApplicationResponse,
   MissionMessageResponse,
   ModeratedReportActionResponse,
+  AdminStatsResponse,
   PaginatedAdminReportsResponse,
   PaginatedApplicationsWithContextResponse,
   PaginatedPublishedRequestsResponse,
@@ -143,6 +144,10 @@ export class MarketplaceClient {
       `/admin/reports/${reportId}/actions`,
       body,
     );
+  }
+
+  getAdminStats(): Promise<AdminStatsResponse> {
+    return this.api.get<AdminStatsResponse>('/admin/stats');
   }
 
   listMissionMessages(missionId: number): Promise<MissionMessageResponse[]> {

@@ -33,6 +33,7 @@ export function useMarketplace() {
       createReport: client.createReport.bind(client),
       listAdminReports: client.listAdminReports.bind(client),
       postAdminReportAction: client.postAdminReportAction.bind(client),
+      getAdminStats: client.getAdminStats.bind(client),
       listMissionMessages: client.listMissionMessages.bind(client),
       postMissionMessage: client.postMissionMessage.bind(client),
     }),

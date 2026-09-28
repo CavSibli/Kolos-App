@@ -200,6 +200,16 @@ export interface ModeratedReportActionResponse {
   reportStatus: ReportStatusCode;
 }
 
+export interface AdminStatsResponse {
+  usersTotal: number;
+  requestsTotal: number;
+  requestsByStatus: Record<string, number>;
+  missionsTotal: number;
+  reportsOpen: number;
+  reportsTotal: number;
+  messagesTotal: number;
+}
+
 export interface MissionMessageResponse {
   id: string;
   conversationId: string;

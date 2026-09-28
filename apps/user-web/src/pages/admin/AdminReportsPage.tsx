@@ -32,7 +32,7 @@ const ACTIONS: { code: ModerationActionCode; label: string; variant: 'primary' |
   { code: 'DISMISS', label: 'Rejeter', variant: 'danger' },
 ];
 
-export function AdminHomePage() {
+export function AdminReportsPage() {
   const { listAdminReports, postAdminReportAction } = useMarketplace();
   const [reports, setReports] = useState<AdminReportListItem[]>([]);
   const [total, setTotal] = useState(0);
@@ -101,7 +101,7 @@ export function AdminHomePage() {
       <PageMeta
         title="Signalements"
         description="Liste des signalements à modérer."
-        path="/admin"
+        path="/admin/reports"
         noIndex
       />
       <h1>Signalements</h1>
