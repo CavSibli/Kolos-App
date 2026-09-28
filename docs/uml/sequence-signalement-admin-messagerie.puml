@@ -1,0 +1,160 @@
+@startuml
+title Séquence — Signalement PG + admin Mongo + messagerie Mongo (T08 / Option C)
+
+skinparam shadowing false
+skinparam sequenceArrowThickness 1
+hide footbox
+autonumber
+
+actor Demandeur as D
+actor Aidant as A
+actor Administrateur as ADM
+boundary "user-web" as FE
+control "MissionsController" as MCTRL
+control "ReportsController" as RPCTRL
+control "AdminController" as ADCTRL
+control "MessagesController" as MSGCTRL
+control "AuthorizePaymentUseCase\n(mock T09)" as PAYUC
+control "CreateReportUseCase" as RPUC
+control "ModerateReportUseCase" as MODUC
+control "ListPostMessagesUseCase" as MSGUC
+entity "MissionRepository\n(Postgres)" as MREP
+entity "ReportRepository\n(Postgres)" as RPREP
+entity "ConversationRepo\n(Mongo)" as CREP
+entity "MessageRepo\n(Mongo)" as MSGREP
+entity "ModerationActionsRepo\n(Mongo)" as MODREP
+database "PostgreSQL" as PG
+database "MongoDB" as MONGO
+
+== Prérequis démo messagerie : mock paiement ==
+
+D -> FE : Simuler paiement
+FE -> MCTRL : POST /missions/{id}/payments/mock-authorize
+activate MCTRL
+MCTRL -> PAYUC : authorizePayment(missionId, demandeurId)
+activate PAYUC
+PAYUC -> MREP : findById + assert owner
+MREP -> PG : SELECT mission
+PG --> MREP : AWAITING_PAYMENT
+MREP --> PAYUC : mission
+PAYUC -> MREP : updateStatus(CONFIRMED)
+MREP -> PG : UPDATE missions
+PG --> MREP : ok
+PAYUC --> MCTRL : mission CONFIRMED
+deactivate PAYUC
+MCTRL --> FE : 200
+deactivate MCTRL
+
+== Messagerie post-mission (Mongo — T11) ==
+
+A -> FE : Ouvrir fil mission
+FE -> MSGCTRL : GET /missions/{id}/messages
+activate MSGCTRL
+MSGCTRL -> MSGUC : listMessages(missionId, userId)
+activate MSGUC
+MSGUC -> MSGUC : assert participant (via mission PG)
+MSGUC -> CREP : findByMissionId(missionId)
+CREP -> MONGO : find conversations
+MONGO --> CREP : conversation?
+CREP --> MSGUC : conversation
+MSGUC -> MSGREP : listByConversation(conversationId)
+MSGREP -> MONGO : find messages
+MONGO --> MSGREP : []
+MSGREP --> MSGUC : messages
+MSGUC --> MSGCTRL : messages
+MSGCTRL --> FE : 200 []
+deactivate MSGUC
+deactivate MSGCTRL
+
+A -> FE : Envoyer un message
+FE -> MSGCTRL : POST /missions/{id}/messages
+activate MSGCTRL
+MSGCTRL -> MSGUC : postMessage(missionId, userId, body)
+activate MSGUC
+MSGUC -> CREP : getOrCreate(missionId, participants)
+CREP -> MONGO : upsert conversation
+MONGO --> CREP : conversation
+CREP --> MSGUC : conversation
+MSGUC -> MSGREP : insert(message)
+MSGREP -> MONGO : insertOne message
+MONGO --> MSGREP : message
+MSGREP --> MSGUC : message
+MSGUC --> MSGCTRL : message
+MSGCTRL --> FE : 201
+deactivate MSGUC
+deactivate MSGCTRL
+
+== Signalement (Postgres — T10) — URL figée ==
+
+D -> FE : Signaler un incident
+FE -> RPCTRL : POST /missions/{id}/reports\n{ motif, description }
+activate RPCTRL
+note right
+  **URL tranchée T08 :**
+  POST /missions/:id/reports
+  (remplace l'ancien POST /reports
+  des UML Semaine 1)
+end note
+RPCTRL -> RPUC : createReport(missionId, authorId, dto)
+activate RPUC
+RPUC -> MREP : findById(missionId)
+MREP -> PG : SELECT mission
+PG --> MREP : mission
+MREP --> RPUC : mission
+RPUC -> RPUC : assert participant mission
+alt Non participant / non auth
+  RPUC --> RPCTRL : Forbidden
+  RPCTRL --> FE : 401 / 403
+else OK
+  RPUC -> RPREP : save(OPEN)
+  RPREP -> PG : INSERT signalements
+  PG --> RPREP : report
+  RPREP --> RPUC : report
+  RPUC --> RPCTRL : report
+  RPCTRL --> FE : 201
+end
+deactivate RPUC
+deactivate RPCTRL
+
+== Admin : liste PG + 1 action → Mongo (T13–T14) ==
+
+ADM -> FE : Ouvrir /admin
+FE -> ADCTRL : GET /admin/reports
+activate ADCTRL
+ADCTRL -> RPREP : listOpen()
+RPREP -> PG : SELECT signalements
+PG --> RPREP : rows
+RPREP --> ADCTRL : reports
+ADCTRL --> FE : 200
+deactivate ADCTRL
+
+ADM -> FE : Classer / masquer
+FE -> ADCTRL : POST /admin/reports/{reportId}/actions\n{ type, motif }
+activate ADCTRL
+ADCTRL -> MODUC : moderate(reportId, adminId, action)
+activate MODUC
+MODUC -> RPREP : findById(reportId)
+RPREP -> PG : SELECT signalement
+PG --> RPREP : report
+RPREP --> MODUC : report
+MODUC -> MODREP : insert(moderation_action)
+MODREP -> MONGO : insertOne moderation_actions
+MONGO --> MODREP : action
+MODREP --> MODUC : action
+opt MAJ statut signalement
+  MODUC -> RPREP : updateStatus(CLASSIFIED)
+  RPREP -> PG : UPDATE signalements
+  PG --> RPREP : ok
+end
+MODUC --> ADCTRL : action
+ADCTRL --> FE : 201
+deactivate MODUC
+deactivate ADCTRL
+
+note over D, MONGO
+  Hors MVP (non modélisé ici) :
+  IN_PROGRESS, multi-aidants complet,
+  avis, clôture complète, DISPUTED plein, Stripe prod.
+end note
+
+@enduml

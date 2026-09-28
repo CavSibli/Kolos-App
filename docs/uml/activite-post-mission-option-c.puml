@@ -1,0 +1,72 @@
+@startuml
+title Activité — Post-mission Option C (messagerie Mongo / signalement / admin)
+
+skinparam activity {
+  BackgroundColor #F8F8F8
+  BorderColor #333333
+}
+skinparam shadowing false
+
+|Demandeur|
+start
+:Mission créée après sélection\n(statut AWAITING_PAYMENT);
+
+|Système Kolos — Postgres|
+:Parcours livré : 1 aidant sélectionné\n(multi-aidants / IN_PROGRESS = hors MVP);
+
+|Demandeur|
+:Simuler paiement (mock T09)\nsans Stripe;
+
+|Système Kolos — Postgres|
+:Passer la mission au statut suivant\n(ex. CONFIRMED);
+
+|Service de notification|
+:Informer demandeur et aidant\n(messagerie débloquée);
+
+fork
+  |Utilisateur (participant)|
+  :Ouvrir le fil de discussion;
+
+  |Système Kolos — Mongo|
+  :Charger / créer Conversation\n(ref missionId);
+  :Lister / poster Message\n(ref userId, droits participants);
+
+  |Utilisateur (participant)|
+  :Échanger des messages;
+  stop
+
+fork again
+  |Utilisateur (participant)|
+  :Déposer un signalement\nmotif + description;
+
+  |Système Kolos — Postgres|
+  :POST /missions/{id}/reports;
+  :Vérifier participant mission;
+  :INSERT signalement (OPEN);
+  note right
+    Pas de passage obligatoire
+    à DISPUTED en MVP léger
+    (GAP clôture / litige complet).
+  end note
+
+  |Service de notification|
+  :Notifier l'administrateur;
+
+  |Administrateur|
+  :Consulter /admin\nliste signalements PG;
+
+  if (Classer / masquer ?) then (Oui)
+    |Système Kolos — Mongo|
+    :INSERT moderation_actions\n(ref reportId, adminId, type);
+    |Système Kolos — Postgres|
+    :Mettre à jour statut\nsignalement (optionnel);
+    stop
+  else (Non)
+    |Administrateur|
+    :Laisser en attente;
+    stop
+  endif
+
+end fork
+
+@enduml

@@ -1,0 +1,108 @@
+@startuml
+title Cas d'utilisation Kolos — amendement complétion (T08 / Option C)
+
+left to right direction
+skinparam packageStyle rectangle
+skinparam actorStyle awesome
+skinparam shadowing false
+skinparam usecase {
+  BackgroundColor #F8F8F8
+  BorderColor #333333
+}
+
+actor "Visiteur" as V
+actor "Utilisateur inscrit" as U
+actor "Demandeur" as D
+actor "Aidant" as A
+actor "Administrateur" as ADM
+
+U <|-- D
+U <|-- A
+
+rectangle "Kolos — MVP livré / complétion" {
+  usecase "Consulter landing\n(SEO)" as UC_Home
+  usecase "Créer un compte" as UC_Register
+  usecase "Se connecter" as UC_Login
+  usecase "Compléter profil\naidant" as UC_Profile
+  usecase "Tableau de bord" as UC_Dashboard
+
+  usecase "Publier une demande" as UC_Publish
+  usecase "Consulter les demandes" as UC_Browse
+  usecase "Candidater" as UC_Apply
+  usecase "Consulter candidatures\nreçues" as UC_ViewApplications
+  usecase "Sélectionner un aidant" as UC_Select
+
+  usecase "Simuler paiement\n(mock)" as UC_MockPay
+  usecase "Échanger par\nmessagerie (Mongo)" as UC_Message
+  usecase "Signaler un incident\n(PG)" as UC_Report
+
+  usecase "Lister les\nsignalements" as UC_AdminList
+  usecase "Traiter un signalement\n(→ Mongo)" as UC_HandleReports
+}
+
+rectangle "Hors MVP complétion (GAP)" as GAP #EEEEEE {
+  usecase "Modifier / annuler\ndemande" as UC_Edit
+  usecase "Retirer candidature" as UC_Withdraw
+  usecase "Paiement Stripe prod" as UC_PayStripe
+  usecase "Multi-aidants\ncomplet" as UC_Multi
+  usecase "Statut IN_PROGRESS" as UC_InProgress
+  usecase "Avis / clôture\ncomplète / DISPUTED" as UC_CloseFull
+  usecase "Géoloc Google" as UC_Geo
+}
+
+V --> UC_Home
+V --> UC_Register
+V --> UC_Login
+
+U --> UC_Dashboard
+U --> UC_Message
+U --> UC_Report
+
+D --> UC_Publish
+D --> UC_ViewApplications
+D --> UC_Select
+D --> UC_MockPay
+D --> UC_Profile
+
+A --> UC_Browse
+A --> UC_Apply
+A --> UC_Profile
+
+ADM --> UC_Login
+ADM --> UC_AdminList
+ADM --> UC_HandleReports
+
+UC_Select ..> UC_MockPay : <<precede>>\nmission AWAITING_PAYMENT
+UC_MockPay ..> UC_Message : <<precede>>\nsortie AWAITING_PAYMENT
+UC_Report ..> UC_HandleReports : <<precede>>
+
+note right of UC_Message
+  **Option C / Mongo**
+  Conversation + Message
+  refs missionId / userId
+  (T11) — pas en Postgres.
+end note
+
+note right of UC_Report
+  **URL figée (T08/T10) :**
+  POST /missions/{id}/reports
+  Stockage : PostgreSQL
+  Acteurs : participants mission.
+end note
+
+note right of UC_HandleReports
+  Liste = signalements PG (T13).
+  1 action (classer / masquer)
+  → insert moderation_actions
+  Mongo (T12 / T14).
+end note
+
+note bottom of GAP
+  Documenté hors MVP :
+  - IN_PROGRESS absent des enums code
+  - multi-aidants non implémenté
+    (sélection 1 aidant sur parcours livré)
+  - avis, clôture complète, Stripe prod, géoloc
+end note
+
+@enduml

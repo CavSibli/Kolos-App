@@ -94,8 +94,8 @@ Autres contraintes documentées dans le README : **pnpm 9+**, Docker Compose pou
 | Postgres marketplace | Opérationnel (parcours jusqu’à `AWAITING_PAYMENT`) | + mock paiement (T09) + signalement (T10) |
 | Mongo connexion | `MongoModule` + health | inchangé |
 | Mongo métier | Absent | Messagerie (T11) + `moderation_actions` (T12) + écriture admin (T14) |
-| Conception MPD | Messages hors MPD PG (T07) ; amendement `docs/mpd-messagerie-mongo.md` | Cohérence Option C tenue |
-| UML UC / séquences | Partiel Semaine 1 | T08 : messagerie, admin, signalement |
+| Conception MPD | Messages encore en tables PG (Semaine 1) | T07 : hors relationnel / Mongo |
+| UML UC / séquences | Amendement T08 dans `docs/uml/` | Messagerie Mongo, admin, signalement ; hors MVP documenté |
 
 ---
 
