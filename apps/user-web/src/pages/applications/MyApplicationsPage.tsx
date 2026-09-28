@@ -92,7 +92,7 @@ export function MyApplicationsPage() {
       ) : null}
 
       <p>
-        <Link to="/">Retour à l&apos;accueil</Link>
+        <Link to="/app">Retour à l&apos;accueil</Link>
       </p>
     </div>
   );

@@ -193,7 +193,7 @@ export function RequestsListPage() {
         <Link to="/applications/mine">Voir mes candidatures</Link>
       </p>
       <p>
-        <Link to="/">Retour à l&apos;accueil</Link>
+        <Link to="/app">Retour à l&apos;accueil</Link>
       </p>
     </div>
   );

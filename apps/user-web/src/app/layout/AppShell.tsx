@@ -24,7 +24,7 @@ export function AppShell() {
 
   const navItems = useMemo(() => {
     const items: NavItem[] = [
-      { to: '/', label: 'Tableau de bord', shortLabel: 'Accueil' },
+      { to: '/app', label: 'Tableau de bord', shortLabel: 'Accueil' },
     ];
 
     if (isAidant) {
@@ -74,7 +74,7 @@ export function AppShell() {
     <div className="app-shell">
       <header className="app-shell__header">
         <div className="app-shell__header-inner">
-          <Link to="/" className="app-shell__brand" onClick={closeDrawer}>
+          <Link to="/app" className="app-shell__brand" onClick={closeDrawer}>
             Kolos
           </Link>
 
