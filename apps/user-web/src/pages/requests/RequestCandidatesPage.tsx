@@ -159,9 +159,9 @@ export function RequestCandidatesPage() {
       <h1>{request.titre}</h1>
       <p className="ds-page-lead">
         {request.mission?.status === 'AWAITING_PAYMENT'
-          ? 'Une action primaire : simuler le paiement pour confirmer la mission.'
+          ? 'Étape suivante : simuler le paiement pour débloquer la messagerie et le signalement.'
           : request.mission?.status === 'CONFIRMED'
-            ? 'Une action primaire : signaler un problème sur la mission si besoin.'
+            ? 'Mission confirmée : messagerie et signalement sont disponibles ci-dessous.'
             : 'Une action primaire : accepter un candidat pour créer la mission.'}
       </p>
 
@@ -169,7 +169,7 @@ export function RequestCandidatesPage() {
         <p>{request.description}</p>
         <p className="ds-meta">
           <span>
-            Statut :{' '}
+            Statut demande :{' '}
             <Badge tone={statusTone(request.status)}>
               {statusLabel(request.status)}
             </Badge>
@@ -180,8 +180,11 @@ export function RequestCandidatesPage() {
           </span>
           {request.mission ? (
             <span>
-              Mission : {statusLabel(request.mission.status)} —{' '}
-              {request.mission.montantTotal} €
+              Mission :{' '}
+              <Badge tone={statusTone(request.mission.status)}>
+                {statusLabel(request.mission.status)}
+              </Badge>{' '}
+              — {request.mission.montantTotal} €
             </span>
           ) : null}
         </p>
@@ -209,20 +212,45 @@ export function RequestCandidatesPage() {
         </p>
       ) : null}
 
-      {request.mission?.status === 'CONFIRMED' ? (
-        <Card title="Signaler un problème">
-          <ReportMissionForm
-            missionId={request.mission.id}
-            onSuccess={(message) => {
-              setSuccess(message);
-              setError(null);
-            }}
-            onError={(message) => {
-              setError(message);
-              setSuccess(null);
-            }}
-          />
+      {request.mission?.status === 'AWAITING_PAYMENT' ? (
+        <Card title="Messagerie & signalement">
+          <p>
+            Ces actions seront disponibles dès que le paiement est simulé
+            (statut mission « Confirmée »).
+          </p>
+          <p className="ds-meta">
+            Cliquez sur <strong>Simuler paiement</strong> dans le bloc ci-dessus.
+          </p>
         </Card>
+      ) : null}
+
+      {request.mission?.status === 'CONFIRMED' ? (
+        <>
+          <Card title="Messagerie">
+            <p>Échangez avec les aidants de la mission.</p>
+            <div className="ds-actions">
+              <Link
+                to={`/app/missions/${request.mission.id}/messages`}
+                className="ds-button ds-button--primary"
+              >
+                Ouvrir la messagerie
+              </Link>
+            </div>
+          </Card>
+          <Card title="Signaler un problème">
+            <ReportMissionForm
+              missionId={request.mission.id}
+              onSuccess={(message) => {
+                setSuccess(message);
+                setError(null);
+              }}
+              onError={(message) => {
+                setError(message);
+                setSuccess(null);
+              }}
+            />
+          </Card>
+        </>
       ) : null}
 
       <h2>Candidats</h2>

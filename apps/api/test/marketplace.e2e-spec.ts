@@ -351,4 +351,83 @@ describe('Marketplace (e2e)', () => {
       .send({ motif: 'INVALID', description: 'Motif invalide' })
       .expect(400);
   });
+
+  it('lists empty messages then posts as demandeur (Mongo)', async () => {
+    const detail = await request(app.getHttpServer())
+      .get(`/v1/requests/${publishedRequestId}`)
+      .set('Authorization', `Bearer ${demandeurToken}`)
+      .expect(200);
+
+    const missionId = detail.body.mission.id as number;
+
+    const empty = await request(app.getHttpServer())
+      .get(`/v1/missions/${missionId}/messages`)
+      .set('Authorization', `Bearer ${demandeurToken}`)
+      .expect(200);
+
+    expect(empty.body).toEqual([]);
+
+    const created = await request(app.getHttpServer())
+      .post(`/v1/missions/${missionId}/messages`)
+      .set('Authorization', `Bearer ${demandeurToken}`)
+      .send({ body: 'Bonjour, merci pour votre aide sur les courses.' })
+      .expect(201);
+
+    expect(created.body.missionId).toBe(missionId);
+    expect(created.body.body).toContain('courses');
+    expect(created.body.conversationId).toBeTruthy();
+
+    const listed = await request(app.getHttpServer())
+      .get(`/v1/missions/${missionId}/messages`)
+      .set('Authorization', `Bearer ${demandeurToken}`)
+      .expect(200);
+
+    expect(listed.body.length).toBeGreaterThanOrEqual(1);
+    expect(listed.body.some((m: { body: string }) => m.body.includes('courses'))).toBe(
+      true,
+    );
+  });
+
+  it('posts a message as aidant participant (Mongo)', async () => {
+    const detail = await request(app.getHttpServer())
+      .get(`/v1/applications/me/${applicationId}`)
+      .set('Authorization', `Bearer ${aidantToken}`)
+      .expect(200);
+
+    const missionId = detail.body.mission.id as number;
+
+    const response = await request(app.getHttpServer())
+      .post(`/v1/missions/${missionId}/messages`)
+      .set('Authorization', `Bearer ${aidantToken}`)
+      .send({ body: 'Je confirme mon arrivée vers 14h.' })
+      .expect(201);
+
+    expect(response.body.missionId).toBe(missionId);
+    expect(response.body.body).toContain('14h');
+  });
+
+  it('forbids messaging for non-participant', async () => {
+    const stranger = await request(app.getHttpServer())
+      .post('/v1/auth/register')
+      .send({
+        email: `aidant-stranger-${suffix}@kolos.local`,
+        password: 'Password123',
+        firstName: 'Eve',
+        lastName: 'Stranger',
+        role: 'aidant',
+      })
+      .expect(201);
+
+    const detail = await request(app.getHttpServer())
+      .get(`/v1/requests/${publishedRequestId}`)
+      .set('Authorization', `Bearer ${demandeurToken}`)
+      .expect(200);
+
+    const missionId = detail.body.mission.id as number;
+
+    await request(app.getHttpServer())
+      .get(`/v1/missions/${missionId}/messages`)
+      .set('Authorization', `Bearer ${stranger.body.accessToken}`)
+      .expect(403);
+  });
 });

@@ -20,6 +20,7 @@ export interface MissionRepository {
     missionId: number,
     aidantId: string,
   ): Promise<Participation | null>;
+  findParticipationsByMissionId(missionId: number): Promise<Participation[]>;
   save(mission: Mission): Promise<Mission>;
   createWithParticipants(
     input: CreateMissionWithParticipantsInput,

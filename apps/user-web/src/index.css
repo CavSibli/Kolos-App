@@ -511,6 +511,30 @@ a.ds-button--primary:hover {
   gap: var(--kolos-space-2);
 }
 
+.ds-message-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--kolos-space-3);
+}
+
+.ds-message-item {
+  padding: var(--kolos-space-3);
+  border-radius: var(--kolos-radius-md);
+  background: var(--kolos-color-surface-muted, color-mix(in srgb, var(--kolos-color-bg) 70%, white));
+  border: 1px solid color-mix(in srgb, var(--kolos-color-border, #c5d0cb) 80%, transparent);
+}
+
+.ds-message-item--mine {
+  background: color-mix(in srgb, var(--kolos-color-brand) 12%, white);
+  border-color: color-mix(in srgb, var(--kolos-color-brand) 35%, transparent);
+}
+
+.ds-message-item p {
+  margin: 0.35rem 0 0;
+}
+
 /* --- AppShell (T03) --- */
 
 .app-shell {

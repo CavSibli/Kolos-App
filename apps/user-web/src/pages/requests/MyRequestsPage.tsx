@@ -71,16 +71,33 @@ export function MyRequestsPage() {
               </span>
               {request.mission ? (
                 <span>
-                  Mission : {statusLabel(request.mission.status)}
+                  Mission :{' '}
+                  <Badge tone={statusTone(request.mission.status)}>
+                    {statusLabel(request.mission.status)}
+                  </Badge>
                 </span>
               ) : null}
             </p>
-            <Link
-              to={`/app/requests/mine/${request.id}`}
-              className="ds-button ds-button--secondary"
-            >
-              Gérer les candidats
-            </Link>
+            <div className="ds-actions">
+              <Link
+                to={`/app/requests/mine/${request.id}`}
+                className="ds-button ds-button--secondary"
+              >
+                {request.mission?.status === 'AWAITING_PAYMENT'
+                  ? 'Simuler le paiement'
+                  : request.mission?.status === 'CONFIRMED'
+                    ? 'Messagerie & signalement'
+                    : 'Gérer les candidats'}
+              </Link>
+              {request.mission?.status === 'CONFIRMED' ? (
+                <Link
+                  to={`/app/missions/${request.mission.id}/messages`}
+                  className="ds-button ds-button--primary"
+                >
+                  Ouvrir la messagerie
+                </Link>
+              ) : null}
+            </div>
           </Card>
         ))}
       </div>
