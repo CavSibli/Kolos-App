@@ -24,3 +24,7 @@ pnpm lint
 ```
 
 Configs : `packages/eslint-config/{base,nest,react}.cjs` branchées sur chaque package.
+
+## Preuve run vert (T19)
+
+https://github.com/CavSibli/Kolos-App/actions/runs/36487414107
