@@ -45,6 +45,8 @@ export function useMarketplace() {
       cancelAdminRequest: client.cancelAdminRequest.bind(client),
       listMissionMessages: client.listMissionMessages.bind(client),
       postMissionMessage: client.postMissionMessage.bind(client),
+      listAdminMissionMessages: client.listAdminMissionMessages.bind(client),
+      postAdminMissionMessage: client.postAdminMissionMessage.bind(client),
     }),
     [client],
   );

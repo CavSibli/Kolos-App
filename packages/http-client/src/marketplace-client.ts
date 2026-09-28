@@ -250,4 +250,22 @@ export class MarketplaceClient {
       body,
     );
   }
+
+  listAdminMissionMessages(
+    missionId: number,
+  ): Promise<MissionMessageResponse[]> {
+    return this.api.get<MissionMessageResponse[]>(
+      `/admin/missions/${missionId}/messages`,
+    );
+  }
+
+  postAdminMissionMessage(
+    missionId: number,
+    body: PostMissionMessageBody,
+  ): Promise<MissionMessageResponse> {
+    return this.api.post<MissionMessageResponse>(
+      `/admin/missions/${missionId}/messages`,
+      body,
+    );
+  }
 }

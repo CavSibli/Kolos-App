@@ -24,6 +24,7 @@ import { MissionMessagesPage } from '../pages/missions/MissionMessagesPage';
 import { AdminDashboardPage } from '../pages/admin/AdminDashboardPage';
 import { AdminUsersPage } from '../pages/admin/AdminUsersPage';
 import { AdminRequestsPage } from '../pages/admin/AdminRequestsPage';
+import { AdminMissionMessagesPage } from '../pages/admin/AdminMissionMessagesPage';
 import { AdminReportsPage } from '../pages/admin/AdminReportsPage';
 import { NotFoundPage } from '../pages/errors/NotFoundPage';
 
@@ -202,6 +203,10 @@ export function AppRouter() {
         <Route path="users" element={<AdminUsersPage />} />
         <Route path="requests" element={<AdminRequestsPage />} />
         <Route path="reports" element={<AdminReportsPage />} />
+        <Route
+          path="missions/:missionId/messages"
+          element={<AdminMissionMessagesPage />}
+        />
       </Route>
 
       <Route path="*" element={<NotFoundPage />} />

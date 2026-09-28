@@ -48,5 +48,6 @@ import {
     ListMessagesUseCase,
     PostMessageUseCase,
   ],
+  exports: [ListMessagesUseCase, PostMessageUseCase],
 })
 export class MessagingModule {}

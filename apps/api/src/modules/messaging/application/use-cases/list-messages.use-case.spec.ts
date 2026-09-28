@@ -151,4 +151,20 @@ describe('ListMessagesUseCase', () => {
       useCase.execute({ missionId: 5, userId: 'demandeur-1' }),
     ).rejects.toBeInstanceOf(UnprocessableEntityException);
   });
+
+  it('allows admin bypass of participant check', async () => {
+    access.assertParticipant.mockResolvedValue({ mission, request });
+    conversationRepository.findByMissionId.mockResolvedValue(null);
+
+    const result = await useCase.execute({
+      missionId: 5,
+      userId: 'admin-1',
+      asAdmin: true,
+    });
+
+    expect(result).toEqual([]);
+    expect(access.assertParticipant).toHaveBeenCalledWith(5, 'admin-1', {
+      asAdmin: true,
+    });
+  });
 });

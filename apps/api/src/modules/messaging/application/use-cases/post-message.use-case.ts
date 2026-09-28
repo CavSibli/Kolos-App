@@ -30,7 +30,9 @@ export class PostMessageUseCase {
       throw new BadRequestException('Le message ne peut pas être vide');
     }
 
-    await this.access.assertParticipant(command.missionId, command.userId);
+    await this.access.assertParticipant(command.missionId, command.userId, {
+      asAdmin: command.asAdmin === true,
+    });
 
     const participantIds = await this.access.resolveParticipantIds(
       command.missionId,

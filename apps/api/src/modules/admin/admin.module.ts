@@ -3,6 +3,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { MongooseModule } from '@nestjs/mongoose';
 import { IdentityModule } from '@modules/identity/identity.module';
 import { RequestsModule } from '@modules/requests/requests.module';
+import { MessagingModule } from '@modules/messaging/messaging.module';
 import { UserOrmEntity } from '@modules/identity/infrastructure/typeorm/entities/user.orm-entity';
 import { DemandeOrmEntity } from '@modules/requests/infrastructure/typeorm/entities/demande.orm-entity';
 import { MissionOrmEntity } from '@modules/missions/infrastructure/typeorm/entities/mission.orm-entity';
@@ -30,11 +31,13 @@ import {
 import { AdminStatsController } from './presentation/http/controllers/admin-stats.controller';
 import { AdminUsersController } from './presentation/http/controllers/admin-users.controller';
 import { AdminRequestsController } from './presentation/http/controllers/admin-requests.controller';
+import { AdminMissionMessagesController } from './presentation/http/controllers/admin-mission-messages.controller';
 
 @Module({
   imports: [
     IdentityModule,
     RequestsModule,
+    MessagingModule,
     TypeOrmModule.forFeature([
       UserOrmEntity,
       DemandeOrmEntity,
@@ -47,6 +50,7 @@ import { AdminRequestsController } from './presentation/http/controllers/admin-r
     AdminStatsController,
     AdminUsersController,
     AdminRequestsController,
+    AdminMissionMessagesController,
   ],
   providers: [
     GetAdminStatsUseCase,
