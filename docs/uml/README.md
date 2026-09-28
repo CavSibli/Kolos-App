@@ -1,7 +1,7 @@
-# UML complétion Kolos (T08)
+# UML complétion Kolos (T08 + T21)
 
 **Statut :** amendement conception Option C / MVP complétion  
-**Ne remplace pas** l’intégralité des UML Semaine 1 ; complète UC + 1 activité + 1 séquence pour messagerie Mongo, admin modération et signalement.
+**Ne remplace pas** l’intégralité des UML Semaine 1 ; complète UC + activité + séquence + **classes** (parcours livré + Mongo/admin/report).
 
 ## Artefacts
 
@@ -10,6 +10,7 @@
 | `uc-kolos-completion.puml` | Cas d’utilisation | UC global annoté MVP / hors MVP ; messagerie & journal modération → Mongo |
 | `activite-post-mission-option-c.puml` | Activité | Flux post-sélection : mock paiement → messagerie Mongo **ou** signalement PG → admin → `moderation_actions` Mongo |
 | `sequence-signalement-admin-messagerie.puml` | Séquence | `POST /missions/{id}/reports` (PG) ; action admin → Mongo ; list/post messages Mongo |
+| `classes-parcours-livre-completion.puml` | **Classes (T21)** | Domaine PG (User→Mission→Report) + Mongo (Conversation/Message/ModerationAction) + use cases / HTTP clés |
 
 Sources Semaine 1 alignées (annotations / correctif URL) :
 - `Kolos Semaine 1 - Conception/UML Corrigé/Diagramme de cas d'utilisation global - Kolos.txt`

@@ -1,0 +1,210 @@
+@startuml
+title Diagramme de classes — Kolos parcours livré + Option C (T21)
+
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+skinparam packageStyle rectangle
+hide empty members
+
+' ============================================================
+' Domaine PostgreSQL — marketplace (parcours livré)
+' ============================================================
+package "PostgreSQL — identité & marketplace" <<Rectangle>> #E8F5F0 {
+  class User {
+    -id : UUID
+    -email : string
+    -passwordHash : string
+    -firstName : string
+    -lastName : string
+    -roles : Role[]
+    -bannedAt : Date?
+    -banUntil : Date?
+    -banReason : string?
+    +isBanned(now) : boolean
+    +ban(...) : User
+  }
+
+  class AidantProfile {
+    -userId : UUID
+    -competences / bio : string?
+    -rayonIntervention : number
+    -verificationStatusCode : string
+  }
+
+  class Request <<Demande>> {
+    -id : number
+    -demandeurId : UUID
+    -statusCode : string
+    -titre : string
+    -description : string
+    -adresse : string
+    -dateMission : Date
+    -nbAidantsRequis : number
+    +{static} publish(props) : Request
+  }
+
+  class Application <<Candidature>> {
+    -id : number
+    -demandeId : number
+    -aidantId : UUID
+    -statusCode : string
+    -prixPropose : number?
+    +{static} create(props) : Application
+  }
+
+  class Mission {
+    -id : number
+    -demandeId : number
+    -statusCode : string
+    -montantTotal : number
+    +withStatus(code, now) : Mission
+  }
+
+  class ParticipationMission {
+    -missionId : number
+    -aidantId : UUID
+    -candidatureId : number
+    -statusCode : string
+    -montantConvenu : number
+  }
+
+  class Report <<Signalement>> {
+    -id : number
+    -missionId : number
+    -auteurId : UUID
+    -utilisateurSignaleId : UUID?
+    -motifCode : ReportMotif
+    -statusCode : ReportStatus
+    -priorityCode : ReportPriority
+    -description : string
+    +{static} create(props) : Report
+    +applyStatus(code, now) : void
+  }
+}
+
+' ============================================================
+' Domaine MongoDB — Option C
+' ============================================================
+package "MongoDB — messagerie & journal modération" <<Rectangle>> #FFF3E0 {
+  class Conversation {
+    -missionId : number <<unique>>
+    -participantIds : string[]
+    -createdAt : Date
+  }
+
+  class Message {
+    -conversationId : ObjectId
+    -missionId : number
+    -userId : string
+    -body : string
+    -createdAt : Date
+  }
+
+  class ModerationAction {
+    -reportId : number
+    -adminId : string
+    -action : string
+    -reason : string?
+    -payload : object?
+    -createdAt : Date
+  }
+}
+
+' ============================================================
+' Application (use cases clés du parcours + complétion)
+' ============================================================
+package "Application — parcours & complétion" <<Rectangle>> {
+  class PublishRequestUseCase
+  class ApplyToRequestUseCase
+  class DecideApplicationUseCase
+  class AuthorizePaymentUseCase <<mock>>
+  class CreateReportUseCase
+  class ListAdminReportsUseCase
+  class ModerateReportUseCase
+  class PostMessageUseCase
+  class ListMessagesUseCase
+  class CreateModerationActionUseCase
+}
+
+' ============================================================
+' Présentation (contrôleurs complétion / livré)
+' ============================================================
+package "Présentation HTTP" <<Rectangle>> {
+  class RequestsController
+  class ApplicationsController
+  class MissionsController
+  class MissionReportsController
+  class AdminReportsController
+  class MissionMessagesController
+}
+
+' --- Associations métier PG ---
+User "1" o-- "0..1" AidantProfile
+User "1" --> "*" Request : publie
+User "1" --> "*" Application : candidature
+Request "1" --> "*" Application
+Request "0..1" --> "0..1" Mission : sélection
+Mission "1" *-- "1..*" ParticipationMission
+Application "0..1" --> "0..1" ParticipationMission
+Mission "1" --> "*" Report : signalements
+User "1" --> "*" Report : auteur
+
+' --- Associations Mongo (refs logiques, pas de FK SQL) ---
+Mission "1" ..> "0..1" Conversation : missionId
+Conversation "1" *-- "*" Message
+Report "1" ..> "*" ModerationAction : reportId
+User ..> Message : userId (auteur)
+User ..> ModerationAction : adminId
+
+' --- Flots applicatifs ---
+RequestsController --> PublishRequestUseCase
+ApplicationsController --> ApplyToRequestUseCase
+ApplicationsController --> DecideApplicationUseCase
+MissionsController --> AuthorizePaymentUseCase
+MissionReportsController --> CreateReportUseCase
+AdminReportsController --> ListAdminReportsUseCase
+AdminReportsController --> ModerateReportUseCase
+MissionMessagesController --> PostMessageUseCase
+MissionMessagesController --> ListMessagesUseCase
+ModerateReportUseCase ..> CreateModerationActionUseCase : journal Mongo
+
+PublishRequestUseCase --> Request
+ApplyToRequestUseCase --> Application
+DecideApplicationUseCase --> Mission
+DecideApplicationUseCase --> ParticipationMission
+AuthorizePaymentUseCase --> Mission : AWAITING_PAYMENT → CONFIRMED
+CreateReportUseCase --> Report
+PostMessageUseCase --> Message
+PostMessageUseCase --> Conversation
+CreateModerationActionUseCase --> ModerationAction
+
+note right of AuthorizePaymentUseCase
+  Mock paiement (T09) :
+  sort la mission de AWAITING_PAYMENT
+  sans Stripe prod.
+end note
+
+note right of Report
+  Stockage **PostgreSQL** (T10)
+  table signalements + refs type/statut/priorité.
+  URL : POST /missions/:id/reports
+end note
+
+note right of Conversation
+  Hors MPD relationnel (T07/T11).
+  1 conversation / missionId.
+end note
+
+note bottom of ModerationAction
+  Journal immuable Mongo (T12/T14).
+  Lien logique reportId → signalements.id (PG).
+end note
+
+note as N1
+  **Périmètre T21** : classes du parcours livré
+  (publier → candidater → sélectionner → mock paiement)
+  + signalement PG + messagerie Mongo + admin → moderation_actions.
+  Hors diagramme : UC_Edit / Withdraw / avis / Stripe prod / IN_PROGRESS.
+end note
+
+@enduml
