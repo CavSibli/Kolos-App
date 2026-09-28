@@ -19,7 +19,7 @@ export function LoginPage() {
 
     try {
       await login({ email, password });
-      navigate('/');
+      navigate('/app');
     } catch (err) {
       if (err instanceof ApiClientError) {
         setError(

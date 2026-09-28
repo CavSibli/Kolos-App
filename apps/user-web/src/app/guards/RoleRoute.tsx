@@ -21,7 +21,7 @@ export function RoleRoute({
 
   const hasRole = user.roles.some((role) => roles.includes(role));
   if (!hasRole) {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/app" replace />;
   }
 
   return <>{children}</>;

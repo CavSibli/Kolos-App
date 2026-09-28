@@ -23,7 +23,7 @@ export function RegisterPage() {
 
     try {
       await register(form);
-      navigate('/');
+      navigate('/app');
     } catch (err) {
       if (err instanceof ApiClientError) {
         if (err.statusCode === 409) {

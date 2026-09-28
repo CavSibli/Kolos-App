@@ -78,7 +78,7 @@ export function MyRequestsPage() {
         <Link to="/requests/new">Publier une nouvelle demande</Link>
       </p>
       <p>
-        <Link to="/">Retour à l&apos;accueil</Link>
+        <Link to="/app">Retour à l&apos;accueil</Link>
       </p>
     </div>
   );
