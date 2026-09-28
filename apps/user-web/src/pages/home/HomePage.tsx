@@ -7,6 +7,7 @@ import type {
 } from '@kolos/shared-types';
 import { useAuth } from '../../app/providers/AuthProvider';
 import { useMarketplace } from '../../app/hooks/useMarketplace';
+import { PageMeta } from '../../app/seo/PageMeta';
 
 const PREVIEW_SIZE = 5;
 
@@ -109,6 +110,12 @@ export function HomePage() {
 
   return (
     <div className="container dashboard">
+      <PageMeta
+        title="Tableau de bord"
+        description="Votre espace Kolos : demandes, candidatures et actions selon votre rôle."
+        path="/app"
+        noIndex
+      />
       <h1>Tableau de bord</h1>
       <div className="card">
         <p>

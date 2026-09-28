@@ -2,7 +2,11 @@ import { Navigate, Route, Routes } from 'react-router-dom';
 import { ProtectedRoute } from './guards/ProtectedRoute';
 import { RoleRoute } from './guards/RoleRoute';
 import { AppShell } from './layout/AppShell';
+import { PageMeta } from './seo/PageMeta';
 import { HomePage } from '../pages/home/HomePage';
+import { LandingPage } from '../pages/marketing/LandingPage';
+import { MentionsLegalesPage } from '../pages/legal/MentionsLegalesPage';
+import { ConfidentialitePage } from '../pages/legal/ConfidentialitePage';
 import { LoginPage } from '../pages/auth/LoginPage';
 import { RegisterPage } from '../pages/auth/RegisterPage';
 import { AidantProfilePage } from '../pages/profile/AidantProfilePage';
@@ -21,14 +25,56 @@ function ProtectedAppShell() {
   );
 }
 
+function AuthPageMeta({
+  title,
+  description,
+  path,
+}: {
+  title: string;
+  description: string;
+  path: string;
+}) {
+  return (
+    <PageMeta title={title} description={description} path={path} noIndex />
+  );
+}
+
 export function AppRouter() {
   return (
     <Routes>
-      <Route path="/login" element={<LoginPage />} />
-      <Route path="/register" element={<RegisterPage />} />
+      <Route path="/" element={<LandingPage />} />
+      <Route path="/mentions-legales" element={<MentionsLegalesPage />} />
+      <Route path="/confidentialite" element={<ConfidentialitePage />} />
+
+      <Route
+        path="/login"
+        element={
+          <>
+            <AuthPageMeta
+              title="Connexion"
+              description="Connectez-vous à votre espace Kolos demandeur ou aidant."
+              path="/login"
+            />
+            <LoginPage />
+          </>
+        }
+      />
+      <Route
+        path="/register"
+        element={
+          <>
+            <AuthPageMeta
+              title="Inscription"
+              description="Créez un compte Kolos pour publier une demande ou candidater."
+              path="/register"
+            />
+            <RegisterPage />
+          </>
+        }
+      />
 
       <Route element={<ProtectedAppShell />}>
-        <Route path="/" element={<HomePage />} />
+        <Route path="/app" element={<HomePage />} />
         <Route
           path="/profile/aidant"
           element={
