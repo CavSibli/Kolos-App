@@ -132,6 +132,12 @@ export interface DecideApplicationResponse {
   mission: { id: number; status: string; montantTotal: number } | null;
 }
 
+export interface AuthorizePaymentResponse {
+  missionId: number;
+  status: string;
+  montantTotal: number;
+}
+
 export interface ApplyToRequestBody {
   demandeId: number;
   message?: string;

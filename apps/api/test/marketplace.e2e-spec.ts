@@ -200,4 +200,56 @@ describe('Marketplace (e2e)', () => {
     expect(response.body.mission.status).toBe('AWAITING_PAYMENT');
     expect(response.body.participation.status).toBe('SELECTED');
   });
+
+  it('authorizes mock payment as mission owner', async () => {
+    const detail = await request(app.getHttpServer())
+      .get(`/v1/requests/${publishedRequestId}`)
+      .set('Authorization', `Bearer ${demandeurToken}`)
+      .expect(200);
+
+    const missionId = detail.body.mission.id as number;
+
+    const response = await request(app.getHttpServer())
+      .post(`/v1/missions/${missionId}/payments/mock-authorize`)
+      .set('Authorization', `Bearer ${demandeurToken}`)
+      .expect(201);
+
+    expect(response.body.missionId).toBe(missionId);
+    expect(response.body.status).toBe('CONFIRMED');
+    expect(response.body.montantTotal).toBeGreaterThan(0);
+
+    const after = await request(app.getHttpServer())
+      .get(`/v1/requests/${publishedRequestId}`)
+      .set('Authorization', `Bearer ${demandeurToken}`)
+      .expect(200);
+
+    expect(after.body.mission.status).toBe('CONFIRMED');
+  });
+
+  it('forbids mock payment for non-owner demandeur', async () => {
+    const other = await request(app.getHttpServer())
+      .post('/v1/auth/register')
+      .send({
+        email: `demandeur-other-${suffix}@kolos.local`,
+        password: 'Password123',
+        firstName: 'Carol',
+        lastName: 'Other',
+        role: 'demandeur',
+      })
+      .expect(201);
+
+    const otherToken = other.body.accessToken as string;
+
+    const detail = await request(app.getHttpServer())
+      .get(`/v1/applications/me/${applicationId}`)
+      .set('Authorization', `Bearer ${aidantToken}`)
+      .expect(200);
+
+    const missionId = detail.body.mission.id as number;
+
+    await request(app.getHttpServer())
+      .post(`/v1/missions/${missionId}/payments/mock-authorize`)
+      .set('Authorization', `Bearer ${otherToken}`)
+      .expect(403);
+  });
 });

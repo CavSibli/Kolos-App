@@ -29,6 +29,7 @@ export function useMarketplace() {
       listMyApplications: client.listMyApplications.bind(client),
       getMyApplication: client.getMyApplication.bind(client),
       decideApplication: client.decideApplication.bind(client),
+      authorizePayment: client.authorizePayment.bind(client),
     }),
     [client],
   );

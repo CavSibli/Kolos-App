@@ -44,4 +44,12 @@ export class Mission extends Entity<MissionProps> {
   get updatedAt(): Date {
     return this.getProps().updatedAt;
   }
+
+  withStatus(statusCode: MissionStatusCode, now: Date): Mission {
+    return new Mission({
+      ...this.getProps(),
+      statusCode,
+      updatedAt: now,
+    });
+  }
 }

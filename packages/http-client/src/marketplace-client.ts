@@ -4,6 +4,7 @@ import type {
   ApplicationResponse,
   ApplicationWithContextResponse,
   ApplyToRequestBody,
+  AuthorizePaymentResponse,
   CandidateResponse,
   DecideApplicationBody,
   DecideApplicationResponse,
@@ -93,6 +94,12 @@ export class MarketplaceClient {
     return this.api.post<DecideApplicationResponse>(
       `/applications/${applicationId}/decision`,
       body,
+    );
+  }
+
+  authorizePayment(missionId: number): Promise<AuthorizePaymentResponse> {
+    return this.api.post<AuthorizePaymentResponse>(
+      `/missions/${missionId}/payments/mock-authorize`,
     );
   }
 }
