@@ -43,7 +43,7 @@ function errorMessage(err: unknown, fallback: string): string {
 }
 
 export function HomePage() {
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const { listMyApplications, listMyRequests } = useMarketplace();
   const isAidant = Boolean(user?.roles.includes('aidant'));
   const isDemandeur = Boolean(user?.roles.includes('demandeur'));
@@ -109,12 +109,6 @@ export function HomePage() {
 
   return (
     <div className="container dashboard">
-      <div className="nav">
-        <strong>Kolos</strong>
-        <button type="button" onClick={() => void logout()}>
-          Déconnexion
-        </button>
-      </div>
       <h1>Tableau de bord</h1>
       <div className="card">
         <p>
