@@ -31,27 +31,6 @@ async function bootstrap() {
     process.env.NODE_ENV === 'production'
       ? 3000
       : Number(process.env.PORT ?? 3000);
-
-  // #region agent log
-  console.log(
-    `DBG_KOLOS ${JSON.stringify({
-      sessionId: '27b403',
-      hypothesisId: 'H2',
-      location: 'main.ts:listen',
-      message: 'about to listen',
-      data: {
-        chosenPort: port,
-        envPORT: process.env.PORT ?? null,
-        envPOSTGRES_PORT: process.env.POSTGRES_PORT ?? null,
-        configAppPort: configService.get('app.port') ?? null,
-        nodeEnv: process.env.NODE_ENV ?? null,
-        corsOrigin: corsOrigin ?? null,
-      },
-      timestamp: Date.now(),
-    })}`,
-  );
-  // #endregion
-
   await app.listen(port);
   console.log(`Kolos API running on http://localhost:${port}/v1`);
 }
