@@ -42,10 +42,12 @@ services:
       - .env
     environment:
       NODE_ENV: production
+      PORT: "3000"
       POSTGRES_HOST: postgres
       POSTGRES_PORT: "5432"
       MONGO_URI: mongodb://mongo:27017
-      COOKIE_SECURE: "true"
+      COOKIE_SECURE: "false"
+      CORS_ORIGIN: ${CORS_ORIGIN}
     depends_on:
       postgres:
         condition: service_healthy

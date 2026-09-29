@@ -1,16 +1,17 @@
 {
+  # Sans vrai domaine : pas de HTTPS auto (Let's Encrypt)
+  # Quand tu auras un domaine, on réactivera le certificat.
+  auto_https off
   email {$ACME_EMAIL}
 }
 
-{$KOLOS_DOMAIN} {
+:80 {
   encode gzip
 
-  # API Nest (préfixe global /v1)
   handle /v1* {
     reverse_proxy api:3000
   }
 
-  # Front SPA (nginx)
   handle {
     reverse_proxy user-web:80
   }

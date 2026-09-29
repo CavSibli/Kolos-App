@@ -26,7 +26,8 @@ async function bootstrap() {
     credentials: true,
   });
 
-  const port = configService.get<number>('app.port') ?? 3000;
+  // Lire PORT directement (évite toute confusion avec POSTGRES_PORT via ConfigService)
+  const port = Number(process.env.PORT ?? 3000);
   await app.listen(port);
   console.log(`Kolos API running on http://localhost:${port}/v1`);
 }
