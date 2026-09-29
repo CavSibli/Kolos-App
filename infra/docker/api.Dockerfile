@@ -11,9 +11,12 @@ COPY apps/api/package.json ./apps/api/
 RUN pnpm install --frozen-lockfile
 
 FROM deps AS build
+ARG GIT_SHA=dev
 COPY apps/api ./apps/api
 COPY tsconfig.base.json ./
-RUN pnpm --filter @kolos/shared-types build \
+# Force invalidation du cache quand le SHA change
+RUN echo "Building API @ ${GIT_SHA}" > /tmp/kolos-build-id \
+  && pnpm --filter @kolos/shared-types build \
   && pnpm --filter @kolos/api build
 
 FROM base AS runner

@@ -26,8 +26,12 @@ async function bootstrap() {
     credentials: true,
   });
 
-  // Lire PORT directement (évite toute confusion avec POSTGRES_PORT via ConfigService)
-  const port = Number(process.env.PORT ?? 3000);
+  // En prod Docker, toujours 3000 (Caddy proxy vers api:3000).
+  // Évite tout conflit avec POSTGRES_PORT / cache build / ConfigService.
+  const port =
+    process.env.NODE_ENV === 'production'
+      ? 3000
+      : Number(process.env.PORT ?? 3000);
   await app.listen(port);
   console.log(`Kolos API running on http://localhost:${port}/v1`);
 }

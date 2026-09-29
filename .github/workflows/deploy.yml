@@ -43,11 +43,14 @@ jobs:
           context: .
           file: infra/docker/api.Dockerfile
           push: true
+          build-args: |
+            GIT_SHA=${{ steps.meta.outputs.sha }}
           tags: |
             ${{ secrets.SCW_REGISTRY_ENDPOINT }}/${{ secrets.SCW_REGISTRY_NAMESPACE }}/kolos-api:${{ steps.meta.outputs.sha }}
             ${{ secrets.SCW_REGISTRY_ENDPOINT }}/${{ secrets.SCW_REGISTRY_NAMESPACE }}/kolos-api:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          no-cache-filters: build
 
       - name: Build & push user-web
         uses: docker/build-push-action@v6
