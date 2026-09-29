@@ -27,7 +27,9 @@ services:
       timeout: 5s
       retries: 5
 
+  # Optionnel : stack complète locale (build). Pour le dev quotidien : `pnpm dev` + DB only.
   api:
+    profiles: ["full"]
     build:
       context: .
       dockerfile: infra/docker/api.Dockerfile
@@ -37,7 +39,9 @@ services:
       - .env
     environment:
       POSTGRES_HOST: postgres
+      POSTGRES_PORT: "5432"
       MONGO_URI: mongodb://mongo:27017
+      RUN_SEED_ON_START: "true"
     depends_on:
       postgres:
         condition: service_healthy
@@ -45,13 +49,14 @@ services:
         condition: service_healthy
 
   user-web:
+    profiles: ["full"]
     build:
       context: .
       dockerfile: infra/docker/user-web.Dockerfile
+      args:
+        VITE_API_BASE_URL: http://localhost:3000/v1
     ports:
-      - "5173:5173"
-    environment:
-      VITE_API_BASE_URL: http://localhost:3000/v1
+      - "8080:80"
     depends_on:
       - api
 

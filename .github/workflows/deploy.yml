@@ -1,0 +1,86 @@
+name: Deploy Scaleway
+
+# CD : après push sur main (images → Registry → SSH → compose up)
+# Prérequis : secrets GitHub listés dans Kolos Soutenance Final/Deploy/
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-scaleway
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Build · Push · Deploy
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Image tag
+        id: meta
+        run: echo "sha=${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
+
+      - name: Login Scaleway Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ secrets.SCW_REGISTRY_ENDPOINT }}
+          username: nologin
+          password: ${{ secrets.SCW_SECRET_KEY }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build & push API
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: infra/docker/api.Dockerfile
+          push: true
+          tags: |
+            ${{ secrets.SCW_REGISTRY_ENDPOINT }}/${{ secrets.SCW_REGISTRY_NAMESPACE }}/kolos-api:${{ steps.meta.outputs.sha }}
+            ${{ secrets.SCW_REGISTRY_ENDPOINT }}/${{ secrets.SCW_REGISTRY_NAMESPACE }}/kolos-api:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Build & push user-web
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: infra/docker/user-web.Dockerfile
+          push: true
+          build-args: |
+            VITE_API_BASE_URL=/v1
+          tags: |
+            ${{ secrets.SCW_REGISTRY_ENDPOINT }}/${{ secrets.SCW_REGISTRY_NAMESPACE }}/kolos-web:${{ steps.meta.outputs.sha }}
+            ${{ secrets.SCW_REGISTRY_ENDPOINT }}/${{ secrets.SCW_REGISTRY_NAMESPACE }}/kolos-web:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Deploy over SSH
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            set -euo pipefail
+            cd /opt/kolos
+            # Aligne compose / Caddyfile avec main (sans toucher au .env local)
+            git fetch origin main
+            git checkout main
+            git pull --ff-only origin main
+            export KOLOS_API_IMAGE="${{ secrets.SCW_REGISTRY_ENDPOINT }}/${{ secrets.SCW_REGISTRY_NAMESPACE }}/kolos-api:${{ steps.meta.outputs.sha }}"
+            export KOLOS_WEB_IMAGE="${{ secrets.SCW_REGISTRY_ENDPOINT }}/${{ secrets.SCW_REGISTRY_NAMESPACE }}/kolos-web:${{ steps.meta.outputs.sha }}"
+            sed -i "s|^KOLOS_API_IMAGE=.*|KOLOS_API_IMAGE=${KOLOS_API_IMAGE}|" .env
+            sed -i "s|^KOLOS_WEB_IMAGE=.*|KOLOS_WEB_IMAGE=${KOLOS_WEB_IMAGE}|" .env
+            echo "${{ secrets.SCW_SECRET_KEY }}" | docker login "${{ secrets.SCW_REGISTRY_ENDPOINT }}" -u nologin --password-stdin
+            docker compose -f docker-compose.prod.yml pull api user-web
+            docker compose -f docker-compose.prod.yml up -d
+            docker compose -f docker-compose.prod.yml ps

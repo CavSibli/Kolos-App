@@ -1,0 +1,92 @@
+# Kolos — stack production (VM Scaleway)
+# Usage sur le serveur : docker compose -f docker-compose.prod.yml up -d
+# Les images api / user-web viennent du Container Registry (pas de build local).
+
+name: kolos
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - kolos
+
+  mongo:
+    image: mongo:7
+    restart: unless-stopped
+    volumes:
+      - mongo_data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - kolos
+
+  api:
+    image: ${KOLOS_API_IMAGE}
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      NODE_ENV: production
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: "5432"
+      MONGO_URI: mongodb://mongo:27017
+      COOKIE_SECURE: "true"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      mongo:
+        condition: service_healthy
+    networks:
+      - kolos
+
+  user-web:
+    image: ${KOLOS_WEB_IMAGE}
+    restart: unless-stopped
+    depends_on:
+      - api
+    networks:
+      - kolos
+
+  caddy:
+    image: caddy:2.8-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      KOLOS_DOMAIN: ${KOLOS_DOMAIN}
+      ACME_EMAIL: ${ACME_EMAIL}
+    volumes:
+      - ./infra/caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - api
+      - user-web
+    networks:
+      - kolos
+
+volumes:
+  postgres_data:
+  mongo_data:
+  caddy_data:
+  caddy_config:
+
+networks:
+  kolos:
+    driver: bridge

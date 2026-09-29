@@ -1,0 +1,17 @@
+{
+  email {$ACME_EMAIL}
+}
+
+{$KOLOS_DOMAIN} {
+  encode gzip
+
+  # API Nest (préfixe global /v1)
+  handle /v1* {
+    reverse_proxy api:3000
+  }
+
+  # Front SPA (nginx)
+  handle {
+    reverse_proxy user-web:80
+  }
+}
