@@ -16,15 +16,9 @@ export function AdminDashboardPage() {
     async function load() {
       try {
         const result = await getAdminStats();
-        // #region agent log
-        fetch('http://127.0.0.1:7922/ingest/326d00f4-1522-4d98-ad21-c5e911302b3a',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'081765'},body:JSON.stringify({sessionId:'081765',runId:'post-fix',hypothesisId:'A',location:'AdminDashboardPage.tsx:load',message:'admin stats fetch ok',data:{usersTotal:result.usersTotal,requestsTotal:result.requestsTotal},timestamp:Date.now()})}).catch(()=>{});
-        // #endregion
         setStats(result);
       } catch (err) {
         if (err instanceof ApiClientError) {
-          // #region agent log
-          fetch('http://127.0.0.1:7922/ingest/326d00f4-1522-4d98-ad21-c5e911302b3a',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'081765'},body:JSON.stringify({sessionId:'081765',runId:'post-fix',hypothesisId:'A',location:'AdminDashboardPage.tsx:load',message:'admin stats fetch error',data:{status:err.status,msg:typeof err.body.message==='string'?err.body.message:String(err.body.message)},timestamp:Date.now()})}).catch(()=>{});
-          // #endregion
           setError(
             typeof err.body.message === 'string'
               ? err.body.message

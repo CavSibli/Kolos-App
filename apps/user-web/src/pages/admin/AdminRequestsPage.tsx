@@ -115,23 +115,14 @@ export function AdminRequestsPage() {
     const titre = draft?.titre?.trim() ?? '';
     const description = draft?.description?.trim() ?? '';
     const adresse = draft?.adresse?.trim() ?? '';
-    // #region agent log
-    fetch('http://127.0.0.1:7922/ingest/326d00f4-1522-4d98-ad21-c5e911302b3a',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'081765'},body:JSON.stringify({sessionId:'081765',runId:'post-fix',hypothesisId:'H1',location:'AdminRequestsPage.tsx:onSave',message:'save request clicked',data:{id,titreLen:titre.length,descriptionLen:description.length,adresseLen:adresse.length},timestamp:Date.now()})}).catch(()=>{});
-    // #endregion
     if (!titre || !description || !adresse) return;
     setBusyId(id);
     setError(null);
     try {
       await updateAdminRequest(id, { titre, description, adresse });
-      // #region agent log
-      fetch('http://127.0.0.1:7922/ingest/326d00f4-1522-4d98-ad21-c5e911302b3a',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'081765'},body:JSON.stringify({sessionId:'081765',runId:'post-fix',hypothesisId:'H2',location:'AdminRequestsPage.tsx:onSave',message:'save request ok',data:{id},timestamp:Date.now()})}).catch(()=>{});
-      // #endregion
       await reload();
     } catch (err) {
       if (err instanceof ApiClientError) {
-        // #region agent log
-        fetch('http://127.0.0.1:7922/ingest/326d00f4-1522-4d98-ad21-c5e911302b3a',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'081765'},body:JSON.stringify({sessionId:'081765',runId:'post-fix',hypothesisId:'H2',location:'AdminRequestsPage.tsx:onSave',message:'save request error',data:{id,status:err.status,msg:typeof err.body.message==='string'?err.body.message:JSON.stringify(err.body.message)},timestamp:Date.now()})}).catch(()=>{});
-        // #endregion
         setError(
           typeof err.body.message === 'string'
             ? err.body.message
