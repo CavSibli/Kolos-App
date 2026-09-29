@@ -2,7 +2,13 @@
   "name": "@kolos/api",
   "private": true,
   "version": "0.0.1",
+  "files": [
+    "dist"
+  ],
   "scripts": {
+    "start:prod": "node dist/main.js",
+    "typeorm:migrate:prod": "typeorm migration:run -d dist/shared/infrastructure/postgres/postgres.data-source.js",
+    "seed:postgres:prod": "node dist/shared/infrastructure/postgres/seeds/seed-admin-user.js",
     "dev": "nest start --watch",
     "start": "nest start",
     "build": "nest build",
